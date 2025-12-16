@@ -1,481 +1,59 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#3f51b5" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FiyatTakip</title>
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-
-  <style>
-    :root{
-      --bg:#f4f6fb;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --border:#e5e7eb;
-      --primary:#3f51b5;
-      --primary2:#2f3ea1;
-      --soft:#eef2ff;
-      --danger:#ffecec;
-      --dangerBorder:#ffd0d0;
-      --success:#eafff2;
-      --successBorder:#baf2cd;
-      --warn:#fff7e6;
-      --warnBorder:#ffe0a3;
-      --shadow:0 10px 30px rgba(15, 23, 42, .08);
-      --radius:18px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial;
-      background:var(--bg);
-      color:var(--text);
-    }
-    .hidden{display:none!important}
-
-    /* Topbar */
-    .topbar{
-      position:sticky; top:0; z-index:10;
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 14px;
-      background:rgba(244,246,251,.92);
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--border);
-    }
-    .pill{
-      background:var(--soft);
-      border:1px solid #c7d2fe;
-      color:#27339a;
-      padding:6px 12px;
-      border-radius:999px;
-      font-weight:900;
-      letter-spacing:.2px;
-    }
-    .iconbtn{
-      border:1px solid var(--border);
-      background:#fff;
-      border-radius:12px;
-      padding:10px 12px;
-      cursor:pointer;
-    }
-
-    .container{
-      max-width:980px;
-      margin:0 auto;
-      padding:14px 14px 64px;
-    }
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:16px;
-      margin:14px 0;
-    }
-    h1{margin:0 0 6px; font-size:34px; letter-spacing:-.6px}
-    h2{margin:0; font-size:18px}
-    .sub{margin:0 0 12px; color:var(--muted)}
-    .small{color:var(--muted); font-size:13px}
-    .divider{height:1px; background:var(--border); margin:12px 0}
-
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-    .row.between{justify-content:space-between}
-
-    .inp{
-      width:100%;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:12px 14px;
-      outline:none;
-      font-size:15px;
-      background:#fff;
-    }
-    .inp:focus{border-color:#c7d2fe; box-shadow:0 0 0 4px rgba(99,102,241,.12)}
-    .inp.big{padding:14px 16px; font-size:16px}
-
-    .btn{
-      border:1px solid var(--border);
-      background:#fff;
-      border-radius:14px;
-      padding:12px 14px;
-      cursor:pointer;
-      font-weight:900;
-    }
-    .btn.primary{
-      background:var(--primary);
-      border-color:transparent;
-      color:#fff;
-    }
-    .btn.primary:hover{background:var(--primary2)}
-    .btn.ghost{background:#fff}
-    .btn.danger{
-      background:var(--danger);
-      border-color:var(--dangerBorder);
-      color:#a01616;
-    }
-    .btn.smallbtn{
-      padding:9px 11px;
-      border-radius:12px;
-      font-size:13px;
-      font-weight:900;
-      white-space:nowrap;
-    }
-    .btn.open{
-      background:var(--success);
-      border-color:var(--successBorder);
-      color:#126a35;
-    }
-    .btn.copy{
-      background:var(--soft);
-      border-color:#c7d2fe;
-      color:#27339a;
-    }
-    .btn.price{
-      background:var(--warn);
-      border-color:var(--warnBorder);
-      color:#8a5a00;
-    }
-
-    /* Site chips */
-    .siteChips{display:flex; gap:10px; flex-wrap:wrap; margin:10px 0}
-    .chip{
-      display:flex; align-items:center; gap:8px;
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:#fff;
-      cursor:pointer;
-      user-select:none;
-      font-weight:900;
-      font-size:13px;
-    }
-    .chip .dot{width:10px;height:10px;border-radius:99px;background:#cbd5e1}
-    .chip.active{background:var(--soft); border-color:#c7d2fe; color:#27339a}
-    .chip.active .dot{background:var(--primary)}
-
-    /* Results list */
-    .list{
-      border:1px dashed #d1d5db;
-      border-radius:14px;
-      padding:12px;
-    }
-    .list.empty{color:var(--muted)}
-    .rowItem{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
-      padding:10px 6px;
-      border-bottom:1px solid var(--border);
-    }
-    .rowItem:last-child{border-bottom:0}
-    .rowTitle{font-weight:1000}
-    .rowMeta{color:var(--muted); font-size:13px}
-
-    /* Fav grid */
-    .favGrid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-      margin-top:12px;
-    }
-    @media(min-width:760px){
-      .favGrid{grid-template-columns: 1fr 1fr;}
-    }
-    .favGrid.empty{color:var(--muted)}
-    .favCard{
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:12px;
-      background:#fff;
-    }
-    .favTop{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
-    .favTitle{font-weight:1000; font-size:16px}
-    .badgeRow{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
-    .badge{
-      background:#f1f5f9;
-      border:1px solid var(--border);
-      border-radius:999px;
-      padding:6px 10px;
-      font-size:12px;
-      font-weight:900;
-      color:#334155;
-    }
-    .siteButtons{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
-    .miniChart{
-      width:100%;
-      height:120px;
-      border:1px solid var(--border);
-      border-radius:14px;
-      margin-top:10px;
-      background:#fafcff;
-      padding:8px;
-      cursor:pointer;
-    }
-    .miniChart canvas{width:100%; height:100%}
-
-    /* AUTH OVERLAY */
-    #authOverlay{
-      position:fixed;
-      inset:0;
-      background: radial-gradient(1200px 600px at 20% 10%, rgba(99,102,241,.18), transparent),
-                  radial-gradient(900px 500px at 80% 30%, rgba(59,130,246,.16), transparent),
-                  rgba(15,23,42,.35);
-      backdrop-filter: blur(8px);
-      z-index:9999;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-    }
-    .authCard{
-      width:min(420px, 100%);
-      background:#fff;
-      border-radius:24px;
-      border:1px solid var(--border);
-      box-shadow:0 18px 60px rgba(0,0,0,.18);
-      padding:16px;
-    }
-    .brandRow{display:flex; gap:12px; align-items:center}
-    .logo{
-      width:46px; height:46px;
-      border-radius:16px;
-      display:grid; place-items:center;
-      background:var(--soft);
-      border:1px solid #c7d2fe;
-      font-weight:1000;
-      color:#27339a;
-      font-size:20px;
-    }
-    .tabs{display:flex; gap:8px; margin-top:12px}
-    .tab{
-      flex:1;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background:#fff;
-      font-weight:1000;
-      cursor:pointer;
-    }
-    .tab.active{
-      background:var(--soft);
-      border-color:#c7d2fe;
-      color:#27339a;
-    }
-    .lbl{display:block; margin-top:10px; margin-bottom:6px; color:#334155; font-weight:900; font-size:13px}
-    .pwrow{display:flex; gap:8px; align-items:center}
-    .msg{
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background:#f1f5f9;
-      color:#0f172a;
-      margin:10px 0;
-      font-weight:900;
-    }
-
-    /* Modal */
-    .backdrop{
-      position:fixed; inset:0;
-      z-index:500;
-      background:rgba(15,23,42,.45);
-      backdrop-filter: blur(4px);
-    }
-    .modal{
-      position:fixed;
-      z-index:600;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%);
-      width:min(560px, 92vw);
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:18px;
-      box-shadow:0 22px 80px rgba(0,0,0,.25);
-    }
-    .modalHead{
-      display:flex; justify-content:space-between; align-items:center;
-      padding:12px 12px 8px;
-      border-bottom:1px solid var(--border);
-    }
-    .modalTitle{font-weight:1000; font-size:16px}
-    .modalBody{padding:12px}
-    .table{
-      margin-top:12px;
-      border:1px solid var(--border);
-      border-radius:14px;
-      overflow:hidden;
-    }
-    .tr{
-      display:flex; justify-content:space-between;
-      padding:10px 12px;
-      border-bottom:1px solid var(--border);
-      gap:12px;
-    }
-    .tr:last-child{border-bottom:0}
-    .td{font-weight:900}
-    .td.m{font-weight:800; color:var(--muted)}
-  </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3F51B5">
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <!-- AUTH (tam ekran) -->
-  <div id="authOverlay">
-    <div class="authCard">
-      <div class="brandRow">
-        <div class="logo">₺</div>
-        <div>
-          <div style="font-weight:1000;font-size:18px">FiyatTakip</div>
-          <div class="small">Giriş yap / kayıt ol</div>
-        </div>
-      </div>
 
-      <div class="tabs">
-        <button id="tabSignIn" class="tab active">Giriş</button>
-        <button id="tabSignUp" class="tab">Kayıt</button>
-      </div>
+<!-- AUTH OVERLAY -->
+<div id="authOverlay" class="auth-overlay">
+  <div class="auth-card">
+    <h2>FiyatTakip</h2>
 
-      <div id="authMsg" class="msg hidden"></div>
+    <input id="email" type="email" placeholder="E-posta">
+    <input id="password" type="password" placeholder="Şifre">
 
-      <div id="signInPanel">
-        <label class="lbl">Email</label>
-        <input id="inEmail" class="inp" type="email" placeholder="ornek@mail.com" autocomplete="email" />
-        <label class="lbl">Şifre</label>
-        <div class="pwrow">
-          <input id="inPass" class="inp" type="password" placeholder="••••••••" autocomplete="current-password" />
-          <button id="btnToggleInPass" class="iconbtn" title="Göster/Gizle">👁</button>
-        </div>
+    <button id="loginBtn">Giriş Yap</button>
+    <button id="registerBtn">Kayıt Ol</button>
+    <button id="googleBtn">Google ile Giriş</button>
 
-        <button id="btnSignIn" class="btn primary" style="width:100%;margin-top:10px">Giriş Yap</button>
-
-        <div class="row" style="margin-top:10px">
-          <button id="btnForgot" class="btn ghost" style="flex:1">Şifremi Unuttum</button>
-          <button id="btnResendVerify" class="btn ghost" style="flex:1">Doğrulama Maili</button>
-        </div>
-      </div>
-
-      <div id="signUpPanel" class="hidden">
-        <label class="lbl">Email</label>
-        <input id="upEmail" class="inp" type="email" placeholder="ornek@mail.com" autocomplete="email" />
-        <label class="lbl">Şifre</label>
-        <div class="pwrow">
-          <input id="upPass" class="inp" type="password" placeholder="En az 6 karakter" autocomplete="new-password" />
-          <button id="btnToggleUpPass" class="iconbtn" title="Göster/Gizle">👁</button>
-        </div>
-        <label class="lbl">Şifre (Tekrar)</label>
-        <div class="pwrow">
-          <input id="upPass2" class="inp" type="password" placeholder="Şifre tekrar" autocomplete="new-password" />
-          <button id="btnToggleUpPass2" class="iconbtn" title="Göster/Gizle">👁</button>
-        </div>
-
-        <button id="btnSignUp" class="btn primary" style="width:100%;margin-top:10px">Hesap Oluştur</button>
-        <div class="small" style="margin-top:10px">
-          Kayıt sonrası doğrulama maili gelir. Maili onaylamadan uygulama açılmaz.
-        </div>
-      </div>
-
-      <div class="divider"></div>
-      <div class="small">
-        Bu sürüm: favori + fiyat kaydı + %5+ indirim bildirimi + grafik. Otomatik fiyat çekme için backend gerekir.
-      </div>
-    </div>
+    <p id="authMsg"></p>
   </div>
+</div>
 
-  <!-- APP -->
-  <header class="topbar">
-    <div class="pill">fiyattakip</div>
-    <button id="btnAskNotify" class="iconbtn" title="Bildirim İzni">🔔</button>
-  </header>
+<!-- APP -->
+<header>
+  <span class="logo">fiyattakip</span>
+  <button id="logoutBtn">Çıkış</button>
+</header>
 
-  <main class="container" id="appRoot">
-    <section class="card">
-      <h1>Fiyat Arama</h1>
-      <p class="sub">Ürün yaz, seçtiğin sitelerde arama aç. Favoriye ekle. Fiyat ekleyince indirim ve grafik otomatik.</p>
+<main>
 
-      <div class="siteChips" id="siteChips"></div>
+<section class="card">
+  <h1>Ürün Ara</h1>
 
-      <div class="row">
-        <input id="q" class="inp big" placeholder="Örn: Xiaomi Pad 7 256GB" />
-        <button id="btnSearch" class="btn primary" style="padding:14px 16px;font-size:16px">Ara</button>
-      </div>
+  <input id="searchInput" placeholder="Ürün adı">
+  <button id="searchBtn">Ara</button>
 
-      <div class="divider"></div>
-      <div class="row between">
-        <div>
-          <div style="font-weight:1000">Arama satırları</div>
-          <div class="small">Her satır: seçili sitede arama açar + favoriye ekler.</div>
-        </div>
-        <button id="btnClearResults" class="btn ghost">Temizle</button>
-      </div>
+  <div id="results"></div>
+</section>
 
-      <div id="resultList" class="list empty" style="margin-top:10px">Henüz arama yapılmadı.</div>
-    </section>
+<section class="card">
+  <h2>❤️ Favoriler</h2>
+  <div id="favorites"></div>
+</section>
 
-    <section class="card">
-      <div class="row between">
-        <div>
-          <h2>❤️ Favoriler</h2>
-          <div class="small">Linkler gizli. Site butonları + copy link var. %5+ düşüşte bildirim.</div>
-        </div>
-        <div class="row">
-          <button id="btnRefreshFav" class="btn ghost">Yenile</button>
-          <button id="btnLogout" class="btn danger">Çıkış</button>
-        </div>
-      </div>
+</main>
 
-      <div id="favList" class="favGrid empty">Favori yok.</div>
-    </section>
-  </main>
+<script type="module" src="firebase.js"></script>
+<script type="module" src="app.js"></script>
 
-  <!-- BACKDROP + MODALS -->
-  <div id="modalBackdrop" class="backdrop hidden"></div>
-
-  <div id="priceModal" class="modal hidden">
-    <div class="modalHead">
-      <div>
-        <div class="modalTitle" id="pmTitle">Fiyat Ekle</div>
-        <div class="small" id="pmSub"></div>
-      </div>
-      <button id="pmClose" class="iconbtn">✕</button>
-    </div>
-    <div class="modalBody">
-      <label class="lbl">Fiyat (TL)</label>
-      <input id="pmPrice" class="inp" type="number" inputmode="numeric" placeholder="Örn: 12999" />
-
-      <label class="lbl">Not (opsiyonel)</label>
-      <input id="pmNote" class="inp" type="text" placeholder="Örn: kupon / kampanya" />
-
-      <div class="row" style="margin-top:10px">
-        <button id="pmSave" class="btn primary" style="flex:1">Kaydet</button>
-        <button id="pmCancel" class="btn ghost" style="flex:1">İptal</button>
-      </div>
-
-      <div class="divider"></div>
-      <div class="small">
-        Kural: Son kayda göre <b>%5 ve üzeri düşüş</b> olursa uyarı + bildirim gösterilir.
-      </div>
-    </div>
-  </div>
-
-  <div id="chartModal" class="modal hidden">
-    <div class="modalHead">
-      <div>
-        <div class="modalTitle" id="cmTitle">Fiyat Grafiği</div>
-        <div class="small" id="cmSub"></div>
-      </div>
-      <button id="cmClose" class="iconbtn">✕</button>
-    </div>
-    <div class="modalBody">
-      <div style="border:1px solid var(--border); border-radius:14px; background:#fafcff; padding:8px">
-        <canvas id="bigChart" width="900" height="360"></canvas>
-      </div>
-      <div id="cmTable" class="table"></div>
-    </div>
-  </div>
-
-  <script type="module" src="app.js"></script>
 </body>
 </html>
