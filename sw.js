@@ -1,17 +1,16 @@
-const CACHE = "fiyattakip-final-v1";
+const CACHE = "fiyattakip-v5";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
-  "./firebase.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
   self.skipWaiting();
 });
 
@@ -25,7 +24,9 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
+  const url = new URL(e.request.url);
+  if (url.origin !== location.origin) return;
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).catch(()=>cached))
+    caches.match(e.request).then((r) => r || fetch(e.request))
   );
 });
