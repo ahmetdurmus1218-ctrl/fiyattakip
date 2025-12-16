@@ -1,179 +1,193 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fiyat Takip</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FiyatTakip</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f6f7fb;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f6f8;
+}
 
-    .phone {
-      max-width: 390px;
-      margin: 20px auto;
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      padding: 16px;
-    }
+.phone {
+  max-width: 390px;
+  margin: 20px auto;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  padding: 16px;
+}
 
-    .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    .logo {
-      font-size: 14px;
-      background: #e7f6f0;
-      color: #1f9d6e;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-weight: bold;
-    }
+.logo {
+  background: #2ecc71;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+}
 
-    h1 {
-      font-size: 22px;
-      margin: 10px 0 4px;
-      color: #2c2c2c;
-    }
+.menu {
+  font-size: 22px;
+  cursor: pointer;
+}
 
-    .subtitle {
-      font-size: 14px;
-      color: #777;
-      margin-bottom: 16px;
-    }
+h1 {
+  margin: 18px 0 6px;
+  font-size: 22px;
+}
 
-    .search-box {
-      display: flex;
-      margin-bottom: 14px;
-    }
+.subtitle {
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
 
-    .search-box input {
-      flex: 1;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      font-size: 14px;
-    }
+.search-box {
+  display: flex;
+  gap: 8px;
+}
 
-    .search-btn {
-      width: 100%;
-      padding: 14px;
-      margin-top: 8px;
-      background: #3f51f5;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+.search-box input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
 
-    .card {
-      background: #eef0ff;
-      padding: 14px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      margin: 18px 0;
-    }
+.search-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px;
+  background: #3f51f5;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
 
-    .card-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #3f51f5;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 12px;
-      font-weight: bold;
-    }
+.card {
+  background: #eef1ff;
+  border-radius: 14px;
+  padding: 14px;
+  margin: 18px 0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
 
-    .card-title {
-      font-weight: bold;
-      font-size: 14px;
-    }
+.card-icon {
+  background: #3f51f5;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+}
 
-    .card-sub {
-      font-size: 12px;
-      color: #555;
-    }
+.card-title {
+  font-weight: bold;
+}
 
-    .bottom {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-    }
+.bottom {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
 
-    .bottom-box {
-      flex: 1;
-      background: #f6f7fb;
-      padding: 16px;
-      border-radius: 14px;
-      text-align: center;
-      font-size: 13px;
-    }
+.box {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
 
-    .bottom-box span {
-      display: block;
-      margin-top: 6px;
-      color: #777;
-      font-size: 12px;
-    }
-  </style>
+.box-icon {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.box-title {
+  font-weight: bold;
+}
+
+.box-sub {
+  font-size: 13px;
+  color: #777;
+}
+</style>
 </head>
 
 <body>
 
-  <div class="phone">
-
-    <div class="top">
-      <div class="logo">fiyattakip</div>
-      <div>☰</div>
-    </div>
-
-    <h1>Ana Sayfa</h1>
-
-    <h1 style="color:#3f51f5;">Fiyat Karşılaştır</h1>
-    <div class="subtitle">
-      Ürün adını yaz, en güncel fiyatları karşılaştır
-    </div>
-
-    <div class="search-box">
-      <input type="text" placeholder="Ürün adını yazın..." />
-    </div>
-
-    <button class="search-btn">Ara</button>
-
-    <div class="card">
-      <div class="card-icon">↗</div>
-      <div>
-        <div class="card-title">En İyi Fiyatları Bul</div>
-        <div class="card-sub">
-          Binlerce mağazadan anlık fiyat karşılaştırması
-        </div>
-      </div>
-    </div>
-
-    <div class="bottom">
-      <div class="bottom-box">
-        ❤️ Favoriler
-        <span>Kayıtlı ürünlerin</span>
-      </div>
-      <div class="bottom-box">
-        🔔 Bildirimler
-        <span>Fiyat düşüş uyarıları</span>
-      </div>
-    </div>
-
+<div class="phone">
+  <div class="top">
+    <div class="logo">fiyattakip</div>
+    <div class="menu">☰</div>
   </div>
 
+  <h1>Ana Sayfa</h1>
+
+  <h1 style="color:#3f51f5;">Fiyat Karşılaştır</h1>
+  <div class="subtitle">
+    Ürün adını yaz, en güncel fiyatları karşılaştır
+  </div>
+
+  <div class="search-box">
+    <input type="text" id="urun" placeholder="Ürün adını yazın...">
+  </div>
+
+  <button class="search-btn" onclick="ara()">Ara</button>
+
+  <div class="card">
+    <div class="card-icon">↘</div>
+    <div>
+      <div class="card-title">En İyi Fiyatları Bul</div>
+      <div class="box-sub">Binlerce mağazadan anlık fiyat karşılaştırması</div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="box">
+      <div class="box-icon">♡</div>
+      <div class="box-title">Favoriler</div>
+      <div class="box-sub">Kayıtlı ürünlerin</div>
+    </div>
+
+    <div class="box">
+      <div class="box-icon">🔔</div>
+      <div class="box-title">Bildirimler</div>
+      <div class="box-sub">Fiyat düşüş uyarıları</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function ara() {
+  const urun = document.getElementById("urun").value;
+  if (!urun) {
+    alert("Ürün adı gir");
+    return;
+  }
+  alert("API bağlanınca arama yapılacak:\n" + urun);
+}
+</script>
+
 </body>
-  </html>
+</html>
