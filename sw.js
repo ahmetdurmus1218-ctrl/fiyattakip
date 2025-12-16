@@ -1,10 +1,10 @@
-const CACHE = "fiyattakip-v1";
+const CACHE = "fiyattakip-v3";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css",
   "./app.js",
   "./manifest.json",
+  "./sw.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];
