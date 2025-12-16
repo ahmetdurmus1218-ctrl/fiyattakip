@@ -1,28 +1,12 @@
 {
   "name": "FiyatTakip",
   "short_name": "FiyatTakip",
-  "id": "/fiyattakip/",
-  "start_url": "/fiyattakip/",
-  "scope": "/fiyattakip/",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#f3f5fb",
-  "theme_color": "#3f51b5",
-  "description": "Trendyol, Hepsiburada, N11, Amazon TR arama + favori + manuel fiyat düşüş uyarıları.",
-  "orientation": "portrait",
-  "categories": ["shopping", "utilities", "productivity"],
+  "background_color": "#f5f6fa",
+  "theme_color": "#4f5bd5",
   "icons": [
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ],
-  "prefer_related_applications": false
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }
