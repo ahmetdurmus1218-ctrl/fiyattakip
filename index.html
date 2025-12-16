@@ -3,500 +3,689 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#3f51b5" />
   <title>FiyatTakip</title>
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#3f51b5">
+  <!-- Manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- iOS basit ikon -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
   <style>
-    :root { --pri:#3f51b5; --bg:#f5f7ff; --card:#fff; --mut:#6b7280; --ok:#1f7a2a; --bad:#7a1f1f; }
-    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:#111; }
-    .wrap{ max-width:520px; margin:0 auto; padding:18px; }
-    .top{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .brand{ display:inline-block; padding:8px 12px; background:#e9edff; border-radius:10px; font-weight:800; color:#25306a; }
-    .menu{ font-size:24px; cursor:pointer; user-select:none; padding:6px 10px; border-radius:10px; }
-    .menu:hover{ background:rgba(0,0,0,.05); }
-
-    h1{ margin:14px 0 6px; font-size:34px; letter-spacing:-.5px; }
-    .sub{ margin:0 0 16px; color:var(--mut); }
-
-    .card{ background:var(--card); border-radius:16px; padding:14px; box-shadow:0 6px 20px rgba(25,40,80,.08); }
-    input[type="text"], input[type="number"]{
-      width:100%; padding:14px 14px; border-radius:14px; border:1px solid #dde3ff; outline:none; font-size:16px;
-      background:#fff; box-sizing:border-box;
+    :root{
+      --primary:#3f51b5;
+      --bg:#f3f5fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --shadow:0 10px 25px rgba(0,0,0,.08);
+      --radius:18px;
+      --max:720px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
+    body{ margin:0; background:var(--bg); color:#111827; }
+    header{
+      background: #ffffff;
+      box-shadow: 0 2px 16px rgba(0,0,0,.06);
+      position: sticky; top:0; z-index:10;
+    }
+    .topbar{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:14px 16px;
+      display:flex; align-items:center; gap:12px;
+    }
+    .pill{
+      background:#eef2ff;
+      color:#1f2a7a;
+      padding:6px 12px;
+      border-radius:999px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .menuBtn{
+      margin-left:auto;
+      border:none;
+      background:#f3f4f6;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:18px;
+      cursor:pointer;
+    }
+    main{ max-width:var(--max); margin:0 auto; padding:16px; }
+    h1{ margin:12px 0 6px; font-size:32px; }
+    .sub{ margin:0 0 14px; color:var(--muted); }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      margin:14px 0;
+    }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    input, select, button, textarea{
+      font:inherit;
+      border-radius:14px;
+      border:1px solid #e5e7eb;
+      padding:12px 12px;
+      outline:none;
+      background:#fff;
+    }
+    input:focus, textarea:focus, select:focus{
+      border-color:#c7d2fe;
+      box-shadow:0 0 0 4px rgba(99,102,241,.12);
+    }
+    .q{ flex:1 1 240px; }
     .btn{
-      width:100%; margin-top:12px; padding:14px 16px; border:0; border-radius:14px; background:var(--pri);
-      color:#fff; font-size:18px; font-weight:800; cursor:pointer;
+      background:var(--primary);
+      color:#fff;
+      border:none;
+      padding:12px 16px;
+      border-radius:16px;
+      cursor:pointer;
+      font-weight:700;
     }
-    .btn:active{ transform:scale(.99); }
+    .btn:active{ transform: translateY(1px); }
+    .btnGhost{
+      background:#eef2ff;
+      color:#1f2a7a;
+      border:1px solid #dbeafe;
+      border-radius:16px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width:640px){ .grid2{ grid-template-columns:1fr; } }
 
-    .hint{ margin:14px 0; background:#eef2ff; border-radius:14px; padding:12px 14px; color:#1f2a6b; }
-    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px; }
-    .tile{ background:#fff; border-radius:16px; padding:14px; text-align:center; cursor:pointer; box-shadow:0 6px 20px rgba(25,40,80,.08); }
-    .tile span{ display:block; margin-top:8px; color:var(--mut); font-size:13px; }
+    .siteList{ display:flex; gap:10px; flex-wrap:wrap; }
+    .chip{
+      padding:8px 10px;
+      border-radius:999px;
+      background:#f3f4f6;
+      cursor:pointer;
+      user-select:none;
+      border:1px solid #e5e7eb;
+      font-weight:600;
+    }
+    .chip.active{
+      background:#eef2ff;
+      border-color:#c7d2fe;
+      color:#1f2a7a;
+    }
 
-    .modalBg{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:flex-end; }
-    .modal{ width:100%; max-width:520px; margin:0 auto; background:#fff; border-radius:18px 18px 0 0; padding:14px; }
-    .tabRow{ display:flex; gap:10px; margin:10px 0 12px; }
-    .tab{ flex:1; padding:10px 12px; border-radius:12px; border:1px solid #e7e9ff; background:#fafbff; cursor:pointer; font-weight:800; }
-    .tab.active{ background:#e9edff; border-color:#cfd6ff; color:#25306a; }
-    .list{ display:flex; flex-direction:column; gap:10px; }
-    .item{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; background:#fafbff; border:1px solid #edf0ff; border-radius:14px; padding:12px; }
-    .item b{ display:block; }
-    .item small{ color:var(--mut); }
+    .muted{ color:var(--muted); font-size:13px; }
+    .hr{ height:1px; background:#eef2f7; margin:12px 0; }
+
+    .resultItem{
+      border:1px solid #eef2f7;
+      border-radius:16px;
+      padding:12px;
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      justify-content:space-between;
+    }
+    .resultLeft{ min-width:0; }
+    .title{ font-weight:800; margin:0 0 6px; }
+    .small{ margin:0; color:var(--muted); font-size:13px; }
     .actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
-    .mini{ border:0; border-radius:12px; padding:10px 12px; cursor:pointer; font-weight:800; }
-    .mini.open{ background:#e9edff; color:#25306a; }
-    .mini.del{ background:#ffe9e9; color:var(--bad); }
-    .mini.add{ background:#e9ffe9; color:var(--ok); }
-    .mini.gray{ background:#f1f5f9; color:#0f172a; }
+    .danger{ background:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
+    .ok{ background:#dcfce7; color:#166534; border:1px solid #bbf7d0; }
 
-    .sites{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-    .chip{ padding:8px 10px; border-radius:999px; border:1px solid #e7e9ff; background:#fafbff; cursor:pointer; font-weight:800; font-size:13px; }
-    .chip.on{ background:#e9edff; border-color:#cfd6ff; color:#25306a; }
-
-    .warn{ margin-top:10px; padding:10px 12px; border-radius:12px; background:#fff7ed; border:1px solid #fed7aa; color:#7c2d12; font-size:13px; }
-    .ok{ margin-top:10px; padding:10px 12px; border-radius:12px; background:#ecfdf5; border:1px solid #bbf7d0; color:#065f46; font-size:13px; }
+    /* simple drawer */
+    .drawer{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.35);
+      display:none;
+      z-index:50;
+    }
+    .drawer.open{ display:block; }
+    .panel{
+      position:absolute; right:0; top:0; height:100%;
+      width:min(360px, 92vw);
+      background:#fff;
+      padding:14px;
+      box-shadow: -10px 0 25px rgba(0,0,0,.15);
+    }
+    .panel h3{ margin:4px 0 10px; }
+    .panel .btn{ width:100%; }
+    .panel .btnGhost{ width:100%; margin-top:8px; }
   </style>
 </head>
-
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">fiyattakip</div>
-      <div class="menu" id="openMenu">☰</div>
+<header>
+  <div class="topbar">
+    <span class="pill">fiyattakip</span>
+    <button class="menuBtn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<main>
+  <h1>Fiyat Karşılaştır</h1>
+  <p class="sub">Ürün adını yaz, seçtiğin sitelerde arama aç. Favoriye ekle, manuel fiyat düşüş uyarısı kur.</p>
+
+  <!-- SEARCH -->
+  <div class="card">
+    <div class="siteList" id="siteList"></div>
+
+    <div class="row" style="margin-top:12px">
+      <input class="q" id="q" placeholder="Ürün adını yazın..." />
+      <button class="btn" id="searchBtn">Ara</button>
     </div>
-
-    <h1>Fiyat Karşılaştır</h1>
-    <p class="sub">Ürün adını yaz, farklı sitelerde arat. İstersen ürün linkini kaydet.</p>
-
-    <div class="card">
-      <input id="q" type="text" placeholder="Ürün adını yazın... (örn: Redmi Note 13)" />
-      <button class="btn" id="btnSearch">Ara</button>
-
-      <div class="sites" id="siteChips"></div>
-
-      <div class="warn">
-        Otomatik fiyat çekme çoğu sitede engellenir (CORS/bot koruması). Bu sürümde “bildirim” manuel fiyat güncelleme ile çalışır.
-      </div>
-    </div>
-
-    <div class="hint">
-      <b>İpucu</b><br/>
-      “Ara” → sonuç linkleri gelir → “Favoriye Kaydet” ile aramayı kaydedebilirsin.<br/>
-      “Ürün Linki Ekle” ile tek ürün sayfasını da favoriye ekleyebilirsin.
-    </div>
-
-    <div class="grid">
-      <div class="tile" id="btnAddLink">🔗<div>Ürün Linki Ekle</div><span>Tek ürün linki kaydet</span></div>
-      <div class="tile" id="btnFav">❤️<div>Favoriler</div><span>Aramalar + ürün linkleri</span></div>
-      <div class="tile" id="btnNoti">🔔<div>Bildirimler</div><span>Fiyat düşüş uyarıları</span></div>
-      <div class="tile" id="btnHow">ℹ️<div>Nasıl Kullanılır</div><span>2 dakikada</span></div>
-    </div>
+    <p class="muted" style="margin-top:10px">
+      Not: Trendyol/Hepsiburada/N11/Amazon TR fiyatlarını tarayıcıdan otomatik çekmek (CORS + bot/captcha) yüzünden direkt mümkün olmuyor.
+      Bu sürüm **arama açar + favori + manuel fiyat takibi/bildirim** yapar.
+    </p>
   </div>
 
-  <!-- Modal -->
-  <div class="modalBg" id="modalBg">
-    <div class="modal">
-      <div class="tabRow">
-        <button class="tab active" id="tabResults">Sonuç</button>
-        <button class="tab" id="tabFav">Favoriler</button>
-        <button class="tab" id="tabNoti">Bildirimler</button>
-        <button class="tab" id="tabAdd">Ürün Linki</button>
+  <!-- RESULTS -->
+  <div class="card">
+    <div class="row" style="align-items:center; justify-content:space-between">
+      <div>
+        <div style="font-weight:900">Arama sonuçları (site bazlı)</div>
+        <div class="muted">Her satır seçili sitede arama açar.</div>
       </div>
-
-      <div id="resultsView"><div class="list" id="resultsList"></div></div>
-      <div id="favView" style="display:none;"><div class="list" id="favList"></div></div>
-      <div id="notiView" style="display:none;"><div class="list" id="notiList"></div></div>
-      <div id="addView" style="display:none;">
-        <div class="card" style="box-shadow:none; border:1px solid #edf0ff;">
-          <div style="font-weight:900;margin-bottom:8px;">Ürün linkini favoriye ekle</div>
-          <input id="linkName" type="text" placeholder="Ürün adı (örn: Xiaomi Pad 7)" />
-          <input id="linkUrl" type="text" placeholder="Ürün linki (Trendyol/HB/N11/Amazon)" style="margin-top:10px;" />
-          <button class="btn" id="addLinkBtn">Favoriye Ekle</button>
-          <div class="ok">Bunu ekleyince Favoriler’den tek tık “Aç” ile ürün sayfası açılır.</div>
-        </div>
-      </div>
-
-      <div style="display:flex; gap:10px; margin-top:12px;">
-        <button class="tab" id="closeModal" style="flex:1;">Kapat</button>
-      </div>
+      <button class="btnGhost" id="clearResultsBtn">Temizle</button>
     </div>
+    <div class="hr"></div>
+    <div id="results"></div>
   </div>
+
+  <!-- FAVORITES -->
+  <div class="card">
+    <div class="row" style="align-items:center; justify-content:space-between">
+      <div>
+        <div style="font-weight:900">❤️ Favoriler</div>
+        <div class="muted">Kaydettiğin ürünler burada.</div>
+      </div>
+      <button class="btnGhost danger" id="clearFavBtn">Favorileri Sil</button>
+    </div>
+    <div class="hr"></div>
+    <div id="favorites"></div>
+  </div>
+
+  <!-- ALERTS -->
+  <div class="card">
+    <div style="font-weight:900">🔔 Bildirimler (Manuel fiyat düşüş uyarısı)</div>
+    <p class="muted">
+      Ürün linkini yapıştır, “mevcut fiyat” ve “hedef fiyat” gir. Uygulama açıldığında kontrol eder ve hedefin altındaysa bildirim atar.
+    </p>
+
+    <div class="grid2">
+      <input id="alertTitle" placeholder="Ürün adı (örn: Xiaomi Pad 8)" />
+      <input id="alertUrl" placeholder="Ürün linki (Trendyol / HB / N11 / Amazon TR)" />
+      <input id="alertCurrent" inputmode="decimal" placeholder="Mevcut fiyat (örn: 12999)" />
+      <input id="alertTarget" inputmode="decimal" placeholder="Hedef fiyat (örn: 11999)" />
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="addAlertBtn">Uyarı Ekle</button>
+      <button class="btnGhost" id="checkAlertsBtn">Şimdi Kontrol Et</button>
+      <button class="btnGhost" id="enableNotifBtn">Bildirim İzni Ver</button>
+    </div>
+
+    <div class="hr"></div>
+    <div id="alerts"></div>
+  </div>
+</main>
+
+<!-- Drawer -->
+<div class="drawer" id="drawer">
+  <div class="panel">
+    <h3>Ayarlar</h3>
+    <p class="muted">PWA hazır. Buradan hızlı işlemler.</p>
+    <button class="btn" id="installBtn">Uygulamayı Yükle (Install)</button>
+    <button class="btnGhost" id="exportBtn">Veriyi Dışa Aktar (JSON)</button>
+    <button class="btnGhost" id="importBtn">Veri İçe Aktar (JSON)</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none" />
+    <div class="hr"></div>
+    <button class="btnGhost danger" id="wipeBtn">Tüm Veriyi Sıfırla</button>
+    <div class="hr"></div>
+    <button class="btnGhost" id="closeDrawerBtn">Kapat</button>
+  </div>
+</div>
 
 <script>
-  // --- Service Worker ---
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+/* ---------------------------
+   STORAGE HELPERS
+----------------------------*/
+const LS = {
+  get(key, fallback){
+    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+    catch { return fallback; }
+  },
+  set(key, val){
+    localStorage.setItem(key, JSON.stringify(val));
   }
+};
 
-  // --- Sites ---
-  const SITES = [
-    { key:"trendyol", name:"Trendyol", make:(q)=>`https://www.trendyol.com/sr?q=${encodeURIComponent(q)}` },
-    { key:"hepsiburada", name:"Hepsiburada", make:(q)=>`https://www.hepsiburada.com/ara?q=${encodeURIComponent(q)}` },
-    { key:"n11", name:"N11", make:(q)=>`https://www.n11.com/arama?q=${encodeURIComponent(q)}` },
-    { key:"amazon", name:"Amazon TR", make:(q)=>`https://www.amazon.com.tr/s?k=${encodeURIComponent(q)}` },
-  ];
+const KEY = {
+  sites: "ft_sites",
+  favs:  "ft_favorites",
+  alerts:"ft_alerts"
+};
 
-  // --- Storage ---
-  const LS = {
-    favKey: "ft_favs_v2",
-    notiKey:"ft_noti_v2",
-    siteKey:"ft_sites_v2",
-    load(k, def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def }catch{ return def } },
-    save(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
-  };
+const DEFAULT_SITES = [
+  { id:"trendyol", name:"Trendyol",  url:(q)=>`https://www.trendyol.com/sr?q=${encodeURIComponent(q)}` },
+  { id:"hb",      name:"Hepsiburada",url:(q)=>`https://www.hepsiburada.com/ara?q=${encodeURIComponent(q)}` },
+  { id:"n11",     name:"N11",        url:(q)=>`https://www.n11.com/arama?q=${encodeURIComponent(q)}` },
+  { id:"amazon",  name:"Amazon TR",  url:(q)=>`https://www.amazon.com.tr/s?k=${encodeURIComponent(q)}` }
+];
 
-  // fav item types:
-  // {id,type:"query", q, sites, createdAt}
-  // {id,type:"link", name, url, createdAt}
-  let selectedSites = LS.load(LS.siteKey, SITES.map(s=>s.key));
-  let favs = LS.load(LS.favKey, []);
-  // noti item:
-  // {id, name, url, target, lastPrice, createdAt}
-  let notis = LS.load(LS.notiKey, []);
+/* ---------------------------
+   UI ELEMENTS
+----------------------------*/
+const el = (id)=>document.getElementById(id);
+const siteListEl = el("siteList");
+const resultsEl  = el("results");
+const favEl      = el("favorites");
+const alertsEl   = el("alerts");
 
-  // --- Elements ---
-  const qEl = document.getElementById("q");
-  const siteChips = document.getElementById("siteChips");
-  const modalBg = document.getElementById("modalBg");
+let selectedSites = LS.get(KEY.sites, DEFAULT_SITES.map(s=>s.id));
+let favorites = LS.get(KEY.favs, []);
+let alerts = LS.get(KEY.alerts, []);
 
-  const resultsView = document.getElementById("resultsView");
-  const favView = document.getElementById("favView");
-  const notiView = document.getElementById("notiView");
-  const addView = document.getElementById("addView");
+/* ---------------------------
+   SITES UI
+----------------------------*/
+function renderSites(){
+  siteListEl.innerHTML = "";
+  DEFAULT_SITES.forEach(s=>{
+    const b = document.createElement("div");
+    b.className = "chip" + (selectedSites.includes(s.id) ? " active" : "");
+    b.textContent = s.name;
+    b.onclick = ()=>{
+      if(selectedSites.includes(s.id)){
+        selectedSites = selectedSites.filter(x=>x!==s.id);
+      } else {
+        selectedSites.push(s.id);
+      }
+      if(selectedSites.length === 0){
+        selectedSites = [s.id];
+      }
+      LS.set(KEY.sites, selectedSites);
+      renderSites();
+    };
+    siteListEl.appendChild(b);
+  });
+}
 
-  const resultsList = document.getElementById("resultsList");
-  const favList = document.getElementById("favList");
-  const notiList = document.getElementById("notiList");
+/* ---------------------------
+   SEARCH / RESULTS
+----------------------------*/
+function makeResultItems(query){
+  const sites = DEFAULT_SITES.filter(s=>selectedSites.includes(s.id));
+  return sites.map(s=>{
+    const openUrl = s.url(query);
+    return {
+      id: crypto.randomUUID(),
+      query,
+      siteId: s.id,
+      siteName: s.name,
+      url: openUrl,
+      createdAt: Date.now()
+    };
+  });
+}
 
-  const tabResults = document.getElementById("tabResults");
-  const tabFav = document.getElementById("tabFav");
-  const tabNoti = document.getElementById("tabNoti");
-  const tabAdd = document.getElementById("tabAdd");
-
-  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
-  function escapeHtml(str){ return String(str||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-  // --- Chips ---
-  function renderChips(){
-    siteChips.innerHTML = "";
-    SITES.forEach(s=>{
-      const b = document.createElement("button");
-      b.className = "chip " + (selectedSites.includes(s.key) ? "on" : "");
-      b.textContent = s.name;
-      b.onclick = ()=>{
-        if (selectedSites.includes(s.key)) selectedSites = selectedSites.filter(x=>x!==s.key);
-        else selectedSites = [...selectedSites, s.key];
-        LS.save(LS.siteKey, selectedSites);
-        renderChips();
-      };
-      siteChips.appendChild(b);
-    });
+function renderResults(items){
+  resultsEl.innerHTML = "";
+  if(!items || items.length===0){
+    resultsEl.innerHTML = `<p class="muted">Henüz arama yapılmadı.</p>`;
+    return;
   }
-  renderChips();
-
-  // --- Modal tabs ---
-  function showTab(which){
-    [tabResults, tabFav, tabNoti, tabAdd].forEach(t=>t.classList.remove("active"));
-    resultsView.style.display="none";
-    favView.style.display="none";
-    notiView.style.display="none";
-    addView.style.display="none";
-
-    if(which==="results"){ tabResults.classList.add("active"); resultsView.style.display="block"; }
-    if(which==="fav"){ tabFav.classList.add("active"); favView.style.display="block"; renderFavs(); }
-    if(which==="noti"){ tabNoti.classList.add("active"); notiView.style.display="block"; renderNotis(); }
-    if(which==="add"){ tabAdd.classList.add("active"); addView.style.display="block"; }
-  }
-
-  tabResults.onclick = ()=>showTab("results");
-  tabFav.onclick = ()=>showTab("fav");
-  tabNoti.onclick = ()=>showTab("noti");
-  tabAdd.onclick = ()=>showTab("add");
-
-  function openModal(which="results"){
-    modalBg.style.display="flex";
-    showTab(which);
-  }
-
-  document.getElementById("closeModal").onclick = ()=> modalBg.style.display="none";
-  modalBg.addEventListener("click", (e)=>{ if(e.target===modalBg) modalBg.style.display="none"; });
-
-  document.getElementById("openMenu").onclick = ()=>openModal("fav");
-  document.getElementById("btnFav").onclick = ()=>openModal("fav");
-  document.getElementById("btnNoti").onclick = ()=>openModal("noti");
-  document.getElementById("btnAddLink").onclick = ()=>openModal("add");
-  document.getElementById("btnHow").onclick = ()=>{
-    openModal("results");
-    resultsList.innerHTML = `
-      <div class="hint">
-        <b>Kullanım</b><br/>
-        1) Ürün adı yaz → <b>Ara</b><br/>
-        2) Gelen sitelerden <b>Aç</b> ile arama sayfalarını aç<br/>
-        3) <b>Favoriye Kaydet</b> ile aramayı kaydet<br/>
-        4) “Ürün Linki” sekmesinden tek ürün linki kaydet<br/>
-        5) Bildirimler: ürün linki + hedef fiyat ekle, sonra “Fiyat Güncelle” ile güncel fiyatı yaz → hedefe düşerse bildirim verir.
+  items.forEach(item=>{
+    const row = document.createElement("div");
+    row.className = "resultItem";
+    row.innerHTML = `
+      <div class="resultLeft">
+        <p class="title">${item.siteName}</p>
+        <p class="small">Arama: <b>${escapeHtml(item.query)}</b></p>
+      </div>
+      <div class="actions">
+        <button class="btnGhost ok" data-open>Siteyi Aç</button>
+        <button class="btnGhost" data-fav>Favoriye Ekle</button>
       </div>
     `;
-  };
-
-  // --- Search & Results ---
-  function doSearch(){
-    const q = (qEl.value || "").trim();
-    if(!q) return;
-
-    const sites = selectedSites.length ? selectedSites : SITES.map(s=>s.key);
-    const urls = SITES.filter(s=>sites.includes(s.key)).map(s=>({name:s.name, url:s.make(q)}));
-
-    openModal("results");
-    renderResults(q, urls, sites);
-  }
-
-  document.getElementById("btnSearch").onclick = doSearch;
-  qEl.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doSearch(); });
-
-  function renderResults(q, urls, sites){
-    resultsList.innerHTML = "";
-
-    const box = document.createElement("div");
-    box.className = "card";
-    box.style.boxShadow = "none";
-    box.style.border = "1px solid #edf0ff";
-    box.innerHTML = `
-      <div style="font-weight:900;margin-bottom:10px;">"${escapeHtml(q)}" sonuçları</div>
-      <div id="urlList" class="list"></div>
-      <div style="height:10px"></div>
-      <button class="mini add" id="addFavQuery">+ Bu aramayı Favoriye Kaydet</button>
-    `;
-    resultsList.appendChild(box);
-
-    const urlList = box.querySelector("#urlList");
-    urls.forEach(u=>{
-      const row = document.createElement("div");
-      row.className = "item";
-      row.innerHTML = `
-        <div>
-          <b>${escapeHtml(u.name)}</b>
-          <small style="word-break:break-all;">${escapeHtml(u.url)}</small>
-        </div>
-        <div class="actions">
-          <button class="mini open">Aç</button>
-        </div>
-      `;
-      row.querySelector(".open").onclick = ()=> window.open(u.url, "_blank");
-      urlList.appendChild(row);
-    });
-
-    box.querySelector("#addFavQuery").onclick = ()=>{
-      favs.unshift({ id:uid(), type:"query", q, sites:[...sites], createdAt:Date.now() });
-      LS.save(LS.favKey, favs);
-      alert("Arama favoriye kaydedildi ✅");
+    row.querySelector("[data-open]").onclick = ()=> window.open(item.url, "_blank");
+    row.querySelector("[data-fav]").onclick = ()=>{
+      addFavorite({
+        title: item.query,
+        site: item.siteName,
+        url: item.url
+      });
     };
+    resultsEl.appendChild(row);
+  });
+}
+
+let currentResults = [];
+
+el("searchBtn").onclick = ()=>{
+  const q = el("q").value.trim();
+  if(!q){ toast("Ürün adı yaz."); return; }
+  currentResults = makeResultItems(q);
+  renderResults(currentResults);
+};
+
+el("clearResultsBtn").onclick = ()=>{
+  currentResults = [];
+  renderResults(currentResults);
+};
+
+/* Enter ile ara */
+el("q").addEventListener("keydown", (e)=>{
+  if(e.key === "Enter") el("searchBtn").click();
+});
+
+/* ---------------------------
+   FAVORITES
+----------------------------*/
+function addFavorite({title, site, url}){
+  const exists = favorites.some(f=>f.url===url);
+  if(exists){ toast("Zaten favorilerde."); return; }
+  favorites.unshift({
+    id: crypto.randomUUID(),
+    title, site, url,
+    createdAt: Date.now()
+  });
+  LS.set(KEY.favs, favorites);
+  renderFavorites();
+  toast("Favoriye eklendi ✅");
+}
+
+function removeFavorite(id){
+  favorites = favorites.filter(f=>f.id!==id);
+  LS.set(KEY.favs, favorites);
+  renderFavorites();
+}
+
+function renderFavorites(){
+  favEl.innerHTML = "";
+  if(favorites.length===0){
+    favEl.innerHTML = `<p class="muted">Favori yok.</p>`;
+    return;
+  }
+  favorites.forEach(f=>{
+    const row = document.createElement("div");
+    row.className = "resultItem";
+    row.innerHTML = `
+      <div class="resultLeft">
+        <p class="title">${escapeHtml(f.title)}</p>
+        <p class="small">${escapeHtml(f.site)}</p>
+        <p class="small" style="word-break:break-all">${escapeHtml(f.url)}</p>
+      </div>
+      <div class="actions">
+        <button class="btnGhost ok" data-open>Aç</button>
+        <button class="btnGhost" data-alert>Uyarı Kur</button>
+        <button class="btnGhost danger" data-del>Sil</button>
+      </div>
+    `;
+    row.querySelector("[data-open]").onclick = ()=> window.open(f.url, "_blank");
+    row.querySelector("[data-alert]").onclick = ()=>{
+      el("alertTitle").value = f.title;
+      el("alertUrl").value = f.url;
+      toast("Link uyarı formuna geldi. Fiyatları girip 'Uyarı Ekle' de.");
+      window.scrollTo({top: document.body.scrollHeight, behavior:"smooth"});
+    };
+    row.querySelector("[data-del]").onclick = ()=> removeFavorite(f.id);
+    favEl.appendChild(row);
+  });
+}
+
+el("clearFavBtn").onclick = ()=>{
+  if(!confirm("Tüm favoriler silinsin mi?")) return;
+  favorites = [];
+  LS.set(KEY.favs, favorites);
+  renderFavorites();
+};
+
+/* ---------------------------
+   ALERTS (MANUAL)
+----------------------------*/
+function parsePrice(x){
+  if(x==null) return null;
+  const s = String(x).replace(",", ".").replace(/[^\d.]/g,"");
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+function addAlert(){
+  const title = el("alertTitle").value.trim();
+  const url   = el("alertUrl").value.trim();
+  const cur   = parsePrice(el("alertCurrent").value.trim());
+  const tgt   = parsePrice(el("alertTarget").value.trim());
+
+  if(!title || !url || cur==null || tgt==null){
+    toast("Ürün adı + link + fiyatlar dolu olmalı.");
+    return;
   }
 
-  // --- Add link to favorites ---
-  document.getElementById("addLinkBtn").onclick = ()=>{
-    const name = document.getElementById("linkName").value.trim();
-    const url  = document.getElementById("linkUrl").value.trim();
-    if(!url){ alert("Link zorunlu."); return; }
-    favs.unshift({ id:uid(), type:"link", name: name || "Ürün", url, createdAt:Date.now() });
-    LS.save(LS.favKey, favs);
-    document.getElementById("linkName").value="";
-    document.getElementById("linkUrl").value="";
-    alert("Ürün linki favoriye eklendi ✅");
-    showTab("fav");
-  };
+  alerts.unshift({
+    id: crypto.randomUUID(),
+    title, url,
+    current: cur,
+    target: tgt,
+    createdAt: Date.now(),
+    lastCheckedAt: 0,
+    lastNotifiedAt: 0
+  });
+  LS.set(KEY.alerts, alerts);
+  renderAlerts();
+  toast("Uyarı eklendi 🔔");
+}
 
-  // --- Favorites list ---
-  function renderFavs(){
-    favList.innerHTML = "";
+function updateAlertPrice(id, newCurrent){
+  alerts = alerts.map(a=> a.id===id ? {...a, current:newCurrent} : a);
+  LS.set(KEY.alerts, alerts);
+  renderAlerts();
+}
 
-    if(!favs.length){
-      favList.innerHTML = `<div class="hint">Henüz favori yok. Arama yapıp kaydet veya ürün linki ekle.</div>`;
-      return;
-    }
+function removeAlert(id){
+  alerts = alerts.filter(a=>a.id!==id);
+  LS.set(KEY.alerts, alerts);
+  renderAlerts();
+}
 
-    favs.forEach(f=>{
-      const row = document.createElement("div");
-      row.className = "item";
+async function ensureNotificationPermission(){
+  if(!("Notification" in window)) { toast("Bu cihaz bildirim desteklemiyor."); return false; }
+  if(Notification.permission === "granted") return true;
+  const p = await Notification.requestPermission();
+  return p === "granted";
+}
 
-      if(f.type==="query"){
-        const sites = f.sites?.length ? f.sites : SITES.map(s=>s.key);
-        const urls = SITES.filter(s=>sites.includes(s.key)).map(s=>({name:s.name, url:s.make(f.q)}));
+async function notify(title, body){
+  const ok = await ensureNotificationPermission();
+  if(!ok) { toast("Bildirim izni yok."); return; }
+  try{
+    new Notification(title, { body });
+  }catch{
+    // bazı Android WebView'larda SW üzerinden olur, burada en azından toast:
+    toast(body);
+  }
+}
 
-        row.innerHTML = `
-          <div>
-            <b>🔎 ${escapeHtml(f.q)}</b>
-            <small>Arama favorisi • ${new Date(f.createdAt).toLocaleString()}</small>
-          </div>
-          <div class="actions">
-            <button class="mini open">Aç</button>
-            <button class="mini gray">Bildirim Ekle</button>
-            <button class="mini del">Sil</button>
-          </div>
-        `;
+function checkAlerts(manual=false){
+  const now = Date.now();
+  alerts = alerts.map(a=> ({...a, lastCheckedAt: now}));
+  LS.set(KEY.alerts, alerts);
 
-        row.querySelector(".open").onclick = ()=>{
-          openModal("results");
-          renderResults(f.q, urls, sites);
-        };
-
-        row.querySelector(".gray").onclick = ()=>{
-          // query favoriden bildirim: kullanıcı ürün linkini girmeli (çünkü query ile fiyat takip olmaz)
-          openModal("noti");
-          alert("Arama favorisine otomatik takip olmaz. Bildirim için ürün linki ekleyerek uyarı oluştur.");
-        };
-
-        row.querySelector(".del").onclick = ()=>{
-          favs = favs.filter(x=>x.id!==f.id);
-          LS.save(LS.favKey, favs);
-          renderFavs();
-        };
-      } else {
-        row.innerHTML = `
-          <div>
-            <b>🔗 ${escapeHtml(f.name || "Ürün")}</b>
-            <small style="word-break:break-all;">${escapeHtml(f.url || "")}</small><br/>
-            <small>Ürün linki • ${new Date(f.createdAt).toLocaleString()}</small>
-          </div>
-          <div class="actions">
-            <button class="mini open">Aç</button>
-            <button class="mini add">Bildirim Ekle</button>
-            <button class="mini del">Sil</button>
-          </div>
-        `;
-
-        row.querySelector(".open").onclick = ()=> window.open(f.url, "_blank");
-
-        row.querySelector(".add").onclick = ()=>{
-          const target = prompt("Hedef fiyat (TL) yaz:");
-          if(!target) return;
-          const t = Number(String(target).replace(",", "."));
-          if(!t || t<=0){ alert("Hedef fiyat geçersiz."); return; }
-
-          notis.unshift({
-            id: uid(),
-            name: f.name || "Ürün",
-            url: f.url,
-            target: t,
-            lastPrice: null,
-            createdAt: Date.now()
-          });
-          LS.save(LS.notiKey, notis);
-          alert("Bildirim eklendi ✅ (Fiyat Güncelle ile çalışır)");
-          openModal("noti");
-        };
-
-        row.querySelector(".del").onclick = ()=>{
-          favs = favs.filter(x=>x.id!==f.id);
-          LS.save(LS.favKey, favs);
-          renderFavs();
-        };
+  // Hedefin altına düştüyse bildir
+  alerts.forEach(a=>{
+    if(a.current <= a.target){
+      // spam olmasın: 1 saatte 1 kez
+      if(now - (a.lastNotifiedAt||0) > 60*60*1000 || manual){
+        a.lastNotifiedAt = now;
+        notify("Fiyat düştü ✅", `${a.title} hedefin altında: ${a.current} ≤ ${a.target}`);
       }
-
-      favList.appendChild(row);
-    });
-  }
-
-  // --- Notifications ---
-  async function ensureNotifyPermission(){
-    if(!("Notification" in window)) return false;
-    if(Notification.permission === "granted") return true;
-    if(Notification.permission === "denied") return false;
-    const p = await Notification.requestPermission();
-    return p === "granted";
-  }
-
-  function renderNotis(){
-    notiList.innerHTML = "";
-
-    // add quick add card
-    const addCard = document.createElement("div");
-    addCard.className = "card";
-    addCard.style.boxShadow="none";
-    addCard.style.border="1px solid #edf0ff";
-    addCard.innerHTML = `
-      <div style="font-weight:900;margin-bottom:8px;">Yeni Uyarı</div>
-      <input id="nName" type="text" placeholder="Ürün adı (örn: Xiaomi Pad 7)" />
-      <input id="nUrl" type="text" placeholder="Ürün linki" style="margin-top:10px;" />
-      <input id="nTarget" type="number" placeholder="Hedef fiyat (TL)" style="margin-top:10px;" />
-      <button class="btn" id="addNotiBtn">Uyarı Ekle</button>
-      <div class="warn">Sonra “Fiyat Güncelle” deyip güncel fiyatı girersin. Hedefe düşerse bildirim verir.</div>
-    `;
-    notiList.appendChild(addCard);
-
-    addCard.querySelector("#addNotiBtn").onclick = ()=>{
-      const name = addCard.querySelector("#nName").value.trim() || "Ürün";
-      const url = addCard.querySelector("#nUrl").value.trim();
-      const target = Number(addCard.querySelector("#nTarget").value);
-      if(!url || !target){ alert("Link + hedef fiyat zorunlu."); return; }
-
-      notis.unshift({ id:uid(), name, url, target, lastPrice:null, createdAt:Date.now() });
-      LS.save(LS.notiKey, notis);
-      renderNotis();
-      alert("Uyarı eklendi ✅");
-    };
-
-    if(!notis.length){
-      const empty = document.createElement("div");
-      empty.className="hint";
-      empty.innerHTML = `Henüz uyarı yok. Üstten ekle.`;
-      notiList.appendChild(empty);
-      return;
     }
+  });
 
-    notis.forEach(n=>{
-      const row = document.createElement("div");
-      row.className = "item";
-      row.innerHTML = `
-        <div>
-          <b>🔔 ${escapeHtml(n.name || "Ürün")}</b>
-          <small>Hedef: ${Number(n.target||0).toLocaleString("tr-TR")} TL</small><br/>
-          <small>Son fiyat: ${n.lastPrice ? Number(n.lastPrice).toLocaleString("tr-TR")+" TL" : "—"}</small><br/>
-          <small style="word-break:break-all;">${escapeHtml(n.url||"")}</small>
-        </div>
-        <div class="actions">
-          <button class="mini open">Aç</button>
-          <button class="mini gray">Fiyat Güncelle</button>
-          <button class="mini del">Sil</button>
-        </div>
-      `;
+  LS.set(KEY.alerts, alerts);
+  renderAlerts();
+  toast("Kontrol yapıldı.");
+}
 
-      row.querySelector(".open").onclick = ()=> window.open(n.url, "_blank");
-
-      row.querySelector(".gray").onclick = async ()=>{
-        const ok = await ensureNotifyPermission();
-        if(!ok){ alert("Bildirim izni verilmedi."); return; }
-
-        const current = prompt("Güncel fiyatı TL olarak yaz (siteye bakıp gir):", n.lastPrice ?? "");
-        if(!current) return;
-        const cur = Number(String(current).replace(",", "."));
-        if(!cur || cur<=0){ alert("Fiyat geçersiz."); return; }
-
-        n.lastPrice = cur;
-        LS.save(LS.notiKey, notis);
-
-        if(cur <= Number(n.target)){
-          new Notification("Fiyat Düştü ✅", { body: `${n.name}: ${cur} TL (hedef ${n.target} TL)` });
-          // istersen direkt açsın
-          // window.open(n.url, "_blank");
-        } else {
-          alert(`Henüz düşmedi: ${cur} TL (hedef ${n.target} TL)`);
-        }
-        renderNotis();
-      };
-
-      row.querySelector(".del").onclick = ()=>{
-        notis = notis.filter(x=>x.id!==n.id);
-        LS.save(LS.notiKey, notis);
-        renderNotis();
-      };
-
-      notiList.appendChild(row);
-    });
+function renderAlerts(){
+  alertsEl.innerHTML = "";
+  if(alerts.length===0){
+    alertsEl.innerHTML = `<p class="muted">Uyarı yok.</p>`;
+    return;
   }
+
+  alerts.forEach(a=>{
+    const row = document.createElement("div");
+    row.className = "resultItem";
+    const status = (a.current <= a.target)
+      ? `<span class="chip active">HEDEF ALTINDA ✅</span>`
+      : `<span class="chip">Bekliyor</span>`;
+
+    row.innerHTML = `
+      <div class="resultLeft">
+        <p class="title">${escapeHtml(a.title)} ${status}</p>
+        <p class="small" style="word-break:break-all">${escapeHtml(a.url)}</p>
+        <p class="small">Mevcut: <b>${a.current}</b> • Hedef: <b>${a.target}</b></p>
+        <p class="small muted">Son kontrol: ${a.lastCheckedAt ? new Date(a.lastCheckedAt).toLocaleString() : "-"}</p>
+      </div>
+      <div class="actions">
+        <button class="btnGhost ok" data-open>Aç</button>
+        <button class="btnGhost" data-update>Fiyat Güncelle</button>
+        <button class="btnGhost danger" data-del>Sil</button>
+      </div>
+    `;
+    row.querySelector("[data-open]").onclick = ()=> window.open(a.url, "_blank");
+    row.querySelector("[data-update]").onclick = ()=>{
+      const v = prompt("Yeni mevcut fiyatı yaz (sayı):", String(a.current));
+      if(v==null) return;
+      const n = parsePrice(v);
+      if(n==null) { toast("Geçersiz fiyat."); return; }
+      updateAlertPrice(a.id, n);
+      toast("Fiyat güncellendi.");
+    };
+    row.querySelector("[data-del]").onclick = ()=> removeAlert(a.id);
+    alertsEl.appendChild(row);
+  });
+}
+
+el("addAlertBtn").onclick = addAlert;
+el("checkAlertsBtn").onclick = ()=>checkAlerts(true);
+el("enableNotifBtn").onclick = ensureNotificationPermission;
+
+/* Uygulama açıldığında bir kez kontrol et */
+window.addEventListener("load", ()=>{
+  renderSites();
+  renderResults(currentResults);
+  renderFavorites();
+  renderAlerts();
+  // açılışta kontrol:
+  setTimeout(()=>checkAlerts(false), 800);
+});
+
+/* ---------------------------
+   INSTALL PROMPT
+----------------------------*/
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+});
+el("installBtn").onclick = async ()=>{
+  if(!deferredPrompt){ toast("Install tetiklenmedi. Chrome menü > Ana ekrana ekle de olur."); return; }
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+};
+
+/* ---------------------------
+   DRAWER + EXPORT/IMPORT
+----------------------------*/
+const drawer = el("drawer");
+el("menuBtn").onclick = ()=> drawer.classList.add("open");
+el("closeDrawerBtn").onclick = ()=> drawer.classList.remove("open");
+drawer.addEventListener("click", (e)=>{ if(e.target === drawer) drawer.classList.remove("open"); });
+
+el("wipeBtn").onclick = ()=>{
+  if(!confirm("Tüm veriler (favori/uyarılar) sıfırlansın mı?")) return;
+  favorites = []; alerts = [];
+  LS.set(KEY.favs, favorites);
+  LS.set(KEY.alerts, alerts);
+  renderFavorites(); renderAlerts();
+  toast("Sıfırlandı.");
+};
+
+el("exportBtn").onclick = ()=>{
+  const data = {
+    sites: selectedSites,
+    favorites,
+    alerts,
+    exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "fiyattakip-data.json";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+el("importBtn").onclick = ()=> el("importFile").click();
+el("importFile").addEventListener("change", async (e)=>{
+  const file = e.target.files?.[0];
+  if(!file) return;
+  const text = await file.text();
+  try{
+    const data = JSON.parse(text);
+    if(Array.isArray(data.sites)) selectedSites = data.sites;
+    if(Array.isArray(data.favorites)) favorites = data.favorites;
+    if(Array.isArray(data.alerts)) alerts = data.alerts;
+    LS.set(KEY.sites, selectedSites);
+    LS.set(KEY.favs, favorites);
+    LS.set(KEY.alerts, alerts);
+    renderSites(); renderFavorites(); renderAlerts();
+    toast("İçe aktarıldı ✅");
+  }catch{
+    toast("JSON okunamadı.");
+  }finally{
+    e.target.value = "";
+  }
+});
+
+/* ---------------------------
+   SERVICE WORKER
+----------------------------*/
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+
+/* ---------------------------
+   UTILS
+----------------------------*/
+function toast(msg){
+  const d = document.createElement("div");
+  d.textContent = msg;
+  d.style.position="fixed";
+  d.style.left="50%";
+  d.style.bottom="22px";
+  d.style.transform="translateX(-50%)";
+  d.style.background="#111827";
+  d.style.color="#fff";
+  d.style.padding="10px 14px";
+  d.style.borderRadius="14px";
+  d.style.boxShadow="0 10px 25px rgba(0,0,0,.25)";
+  d.style.zIndex="9999";
+  d.style.maxWidth="92vw";
+  d.style.fontWeight="700";
+  document.body.appendChild(d);
+  setTimeout(()=>{ d.style.opacity="0"; d.style.transition="opacity .25s"; }, 1600);
+  setTimeout(()=> d.remove(), 2000);
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
 </script>
 </body>
 </html>
