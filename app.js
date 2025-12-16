@@ -1,656 +1,640 @@
-// Firebase CDN (GitHub Pages için doğru yol)
+// PWA SW
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
+}
+
+/* =========================
+   Firebase (CDN Modular)
+   ========================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
-  getAuth, onAuthStateChanged,
-  createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  sendEmailVerification, sendPasswordResetEmail, reload, signOut
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
 import {
-  getFirestore, collection, doc, setDoc, getDocs, deleteDoc,
-  query, orderBy, serverTimestamp
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  addDoc,
+  deleteDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  limit,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-// ✅ Senin config’in
+/* ✅ SENİN CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyBcXkVFQzB2XtxO7wqnbXhzM1Io54zCsBI",
   authDomain: "fiyattakip-ttoxub.firebaseapp.com",
   projectId: "fiyattakip-ttoxub",
   storageBucket: "fiyattakip-ttoxub.firebasestorage.app",
   messagingSenderId: "105868725844",
-  appId: "1:105868725844:web:fc04f5a08e708916e727c1"
+  appId: "1:105868725844:web:fc04f5a08e708916e727c1",
+  measurementId: "G-M6JXDZ3PK0"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// -------------------- helpers --------------------
+/* =========================
+   UI Helpers
+   ========================= */
 const $ = (id) => document.getElementById(id);
-const LS = {
-  get(k, d=""){ return localStorage.getItem(k) ?? d; },
-  set(k, v){ localStorage.setItem(k, v); }
-};
-function toast(msg){
-  const d = document.createElement("div");
-  d.textContent = msg;
-  d.style.position="fixed"; d.style.left="50%"; d.style.bottom="22px";
-  d.style.transform="translateX(-50%)";
-  d.style.background="#111827"; d.style.color="#fff";
-  d.style.padding="10px 14px"; d.style.borderRadius="14px";
-  d.style.boxShadow="0 10px 25px rgba(0,0,0,.25)";
-  d.style.zIndex="9999"; d.style.fontWeight="900"; d.style.maxWidth="92vw";
-  document.body.appendChild(d);
-  setTimeout(()=>{ d.style.opacity="0"; d.style.transition="opacity .25s"; }, 1600);
-  setTimeout(()=> d.remove(), 2000);
-}
-function enc(x){ return encodeURIComponent(x); }
-function parseNum(x){
-  const s = String(x ?? "").replace(",", ".").replace(/[^\d.]/g,"");
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
-}
-function pctDrop(oldP, newP){
-  if(!oldP || oldP<=0) return 0;
-  return ((oldP - newP) / oldP) * 100;
-}
-function sixMonthsAgo(){ return Date.now() - 180*24*60*60*1000; }
-function min6(history, excludeLast=false){
-  const cut = sixMonthsAgo();
-  const arr = (history||[]).filter(h=>h.t>=cut);
-  const arr2 = excludeLast ? arr.slice(0, Math.max(0, arr.length-1)) : arr;
-  if(arr2.length===0) return null;
-  return arr2.reduce((m,x)=>Math.min(m,x.price), Infinity);
+const show = (el) => el.classList.remove("hidden");
+const hide = (el) => el.classList.add("hidden");
+
+function msg(text, kind="info") {
+  const box = $("authMsg");
+  box.textContent = text;
+  box.style.background = kind === "error" ? "#ffecec" : "#f1f5f9";
+  box.style.borderColor = kind === "error" ? "#ffd0d0" : "#e5e7eb";
+  box.style.color = kind === "error" ? "#a01616" : "#0f172a";
+  show(box);
 }
 
-// -------------------- sites --------------------
+function togglePw(inputId){
+  const el = $(inputId);
+  el.type = el.type === "password" ? "text" : "password";
+}
+
+$("btnToggleInPass").onclick = () => togglePw("inPass");
+$("btnToggleUpPass").onclick = () => togglePw("upPass");
+$("btnToggleUpPass2").onclick = () => togglePw("upPass2");
+
+/* =========================
+   Sites
+   ========================= */
 const SITES = [
-  { id:"trendyol", name:"Trendyol",
-    url:(q)=>`https://www.trendyol.com/sr?q=${enc(q)}`,
-    cheap:(q)=>`https://www.trendyol.com/sr?q=${enc(q)}&sst=PRICE_BY_ASC`
-  },
-  { id:"hb", name:"Hepsiburada",
-    url:(q)=>`https://www.hepsiburada.com/ara?q=${enc(q)}`,
-    cheap:(q)=>`https://www.hepsiburada.com/ara?q=${enc(q)}&sorting=price-asc`
-  },
-  { id:"n11", name:"N11",
-    url:(q)=>`https://www.n11.com/arama?q=${enc(q)}`,
-    cheap:(q)=>`https://www.n11.com/arama?q=${enc(q)}&srt=PRICE_LOW`
-  },
-  { id:"amazon", name:"Amazon TR",
-    url:(q)=>`https://www.amazon.com.tr/s?k=${enc(q)}`,
-    cheap:(q)=>`https://www.amazon.com.tr/s?k=${enc(q)}&s=price-asc-rank`
-  },
-  { id:"pazarama", name:"Pazarama",
-    url:(q)=>`https://www.pazarama.com/arama?q=${enc(q)}`,
-    cheap:(q)=>`https://www.pazarama.com/arama?q=${enc(q)}&sort=price_asc`
-  },
-  { id:"ciceksepeti", name:"ÇiçekSepeti",
-    url:(q)=>`https://www.ciceksepeti.com/arama?query=${enc(q)}`,
-    cheap:(q)=>`https://www.ciceksepeti.com/arama?query=${enc(q)}&sort=PRICE_ASC`
-  },
-  { id:"idefix", name:"İdefix",
-    url:(q)=>`https://www.idefix.com/search?q=${enc(q)}`,
-    cheap:(q)=>`https://www.idefix.com/search?q=${enc(q)}&sort=price-asc`
-  },
+  { key:"trendyol", name:"Trendyol", base:"https://www.trendyol.com/sr?q=" },
+  { key:"hepsiburada", name:"Hepsiburada", base:"https://www.hepsiburada.com/ara?q=" },
+  { key:"n11", name:"N11", base:"https://www.n11.com/arama?q=" },
+  { key:"amazontr", name:"Amazon TR", base:"https://www.amazon.com.tr/s?k=" },
+  { key:"pazarama", name:"Pazarama", base:"https://www.pazarama.com/arama?q=" },
+  { key:"ciceksepeti", name:"ÇiçekSepeti", base:"https://www.ciceksepeti.com/arama?query=" },
+  { key:"idefix", name:"İdefix", base:"https://www.idefix.com/search?q=" }
 ];
 
-const LS_SITES = "ft_sites";
-let selectedSites = JSON.parse(LS.get(LS_SITES, "null")) ?? SITES.map(s=>s.id);
+let selectedSites = new Set(SITES.map(s=>s.key)); // default all
+let currentUser = null;
 
-// -------------------- firebase paths --------------------
-const favCol = (uid)=>collection(db,"users",uid,"favorites");
-const alertCol = (uid)=>collection(db,"users",uid,"alerts");
-
-// -------------------- state --------------------
-let user = null;
-let results = [];
-let favorites = [];
-let alerts = [];
-
-// -------------------- auth ui --------------------
-const authOverlay = $("authOverlay");
-const authMsg = $("authMsg");
-const paneLogin = $("paneLogin");
-const paneReg = $("paneReg");
-const paneVer = $("paneVer");
-
-function setAuthTab(which){
-  $("tabLogin").classList.toggle("active", which==="login");
-  $("tabReg").classList.toggle("active", which==="reg");
-  $("tabVer").classList.toggle("active", which==="ver");
-  paneLogin.style.display = which==="login" ? "block" : "none";
-  paneReg.style.display = which==="reg" ? "block" : "none";
-  paneVer.style.display = which==="ver" ? "block" : "none";
-  $("authTitle").textContent = which==="login" ? "Giriş" : which==="reg" ? "Kayıt" : "Email Doğrulama";
-  authMsg.textContent = "";
-}
-$("tabLogin").onclick = ()=>setAuthTab("login");
-$("tabReg").onclick = ()=>setAuthTab("reg");
-$("tabVer").onclick = ()=>setAuthTab("ver");
-
-async function openAuth(which){
-  authOverlay.classList.add("open");
-  setAuthTab(which);
-}
-function closeAuth(){ authOverlay.classList.remove("open"); authMsg.textContent=""; }
-
-$("loginGo").onclick = async ()=>{
-  try{
-    const email = $("loginEmail").value.trim();
-    const pass = $("loginPass").value;
-    if(!email || !pass) throw new Error("Email ve şifre gir.");
-    await signInWithEmailAndPassword(auth, email, pass);
-    authMsg.textContent = "Giriş başarılı…";
-  }catch(e){ authMsg.textContent = e?.message || "Giriş hatası"; }
+/* =========================
+   Auth Tabs
+   ========================= */
+$("tabSignIn").onclick = () => {
+  $("tabSignIn").classList.add("active");
+  $("tabSignUp").classList.remove("active");
+  show($("signInPanel")); hide($("signUpPanel"));
+  hide($("authMsg"));
 };
-$("regGo").onclick = async ()=>{
+$("tabSignUp").onclick = () => {
+  $("tabSignUp").classList.add("active");
+  $("tabSignIn").classList.remove("active");
+  show($("signUpPanel")); hide($("signInPanel"));
+  hide($("authMsg"));
+};
+
+/* =========================
+   Auth Actions
+   ========================= */
+$("btnSignUp").onclick = async () => {
+  hide($("authMsg"));
+  const email = $("upEmail").value.trim();
+  const pass = $("upPass").value.trim();
+  const pass2 = $("upPass2").value.trim();
+  if (!email || !pass) return msg("Email ve şifre boş olamaz.", "error");
+  if (pass.length < 6) return msg("Şifre en az 6 karakter olmalı.", "error");
+  if (pass !== pass2) return msg("Şifreler eşleşmiyor.", "error");
+
   try{
-    const email = $("regEmail").value.trim();
-    const pass = $("regPass").value;
-    if(!email || !pass) throw new Error("Email ve şifre gir.");
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await sendEmailVerification(cred.user);
-    authMsg.textContent = "Kayıt tamam. Doğrulama maili gönderildi.";
-    setAuthTab("ver");
-  }catch(e){ authMsg.textContent = e?.message || "Kayıt hatası"; }
-};
-$("resetGo").onclick = async ()=>{
-  try{
-    const email = $("loginEmail").value.trim();
-    if(!email) throw new Error("Email yaz.");
-    await sendPasswordResetEmail(auth, email);
-    authMsg.textContent = "Şifre sıfırlama maili gönderildi.";
-  }catch(e){ authMsg.textContent = e?.message || "Hata"; }
-};
-$("resendGo").onclick = async ()=>{
-  try{
-    if(!auth.currentUser) throw new Error("Önce giriş yap.");
-    await sendEmailVerification(auth.currentUser);
-    authMsg.textContent = "Mail tekrar gönderildi.";
-  }catch(e){ authMsg.textContent = e?.message || "Hata"; }
-};
-$("checkVerGo").onclick = async ()=>{
-  try{
-    if(!auth.currentUser) throw new Error("Önce giriş yap.");
-    await reload(auth.currentUser);
-    if(auth.currentUser.emailVerified){
-      authMsg.textContent = "Doğrulandı ✅";
-      closeAuth();
-    }else{
-      authMsg.textContent = "Henüz doğrulanmamış. Maildeki linke tıkla, sonra tekrar dene.";
-    }
-  }catch(e){ authMsg.textContent = e?.message || "Hata"; }
-};
-
-$("logoutBtn").onclick = async ()=>{
-  try{ await signOut(auth); toast("Çıkış yapıldı"); }
-  catch{ toast("Çıkış hatası"); }
-};
-
-// -------------------- firestore load/save --------------------
-async function loadUserData(uid){
-  favorites = [];
-  const fq = query(favCol(uid), orderBy("createdAt","desc"));
-  const fs = await getDocs(fq);
-  fs.forEach(d=>{
-    const x = d.data();
-    favorites.push({
-      id:d.id,
-      title:x.title,
-      query:x.query,
-      createdAt: x.createdAtMs ?? Date.now(),
-      links: x.links || {}
-    });
-  });
-
-  alerts = [];
-  const aq = query(alertCol(uid), orderBy("createdAt","desc"));
-  const as = await getDocs(aq);
-  as.forEach(d=>{
-    const x = d.data();
-    alerts.push({
-      id:d.id,
-      title:x.title,
-      url:x.url,
-      minPct: x.minPct ?? 5,
-      history: x.history || [],
-      createdAt: x.createdAtMs ?? Date.now(),
-      lastCheckedAt: x.lastCheckedAt ?? 0,
-      lastNotifiedAt: x.lastNotifiedAt ?? 0
-    });
-  });
-
-  renderFavorites();
-  renderAlerts();
-}
-
-async function saveFav(f){
-  const uid = user?.uid; if(!uid) return;
-  await setDoc(doc(db,"users",uid,"favorites",f.id),{
-    title:f.title, query:f.query, links:f.links,
-    createdAt: serverTimestamp(), createdAtMs:f.createdAt
-  },{merge:true});
-}
-async function delFav(id){
-  const uid = user?.uid; if(!uid) return;
-  await deleteDoc(doc(db,"users",uid,"favorites",id));
-}
-async function saveAlert(a){
-  const uid = user?.uid; if(!uid) return;
-  await setDoc(doc(db,"users",uid,"alerts",a.id),{
-    title:a.title, url:a.url, minPct:a.minPct,
-    history:a.history || [],
-    createdAt: serverTimestamp(), createdAtMs:a.createdAt,
-    lastCheckedAt:a.lastCheckedAt||0, lastNotifiedAt:a.lastNotifiedAt||0
-  },{merge:true});
-}
-async function delAlert(id){
-  const uid = user?.uid; if(!uid) return;
-  await deleteDoc(doc(db,"users",uid,"alerts",id));
-}
-
-// -------------------- UI render: sites --------------------
-function renderSites(){
-  const host = $("siteList");
-  host.innerHTML = "";
-  SITES.forEach(s=>{
-    const b = document.createElement("div");
-    b.className = "chip" + (selectedSites.includes(s.id) ? " active":"");
-    b.textContent = s.name;
-    b.onclick = ()=>{
-      if(selectedSites.includes(s.id)) selectedSites = selectedSites.filter(x=>x!==s.id);
-      else selectedSites.push(s.id);
-      if(selectedSites.length===0) selectedSites=[s.id];
-      LS.set(LS_SITES, JSON.stringify(selectedSites));
-      renderSites();
-    };
-    host.appendChild(b);
-  });
-}
-
-// -------------------- Search / Results --------------------
-function makeResults(q){
-  const sites = SITES.filter(s=>selectedSites.includes(s.id));
-  return sites.map(s=>({
-    id: crypto.randomUUID(),
-    query:q,
-    siteName:s.name,
-    url:s.url(q),
-    cheapUrl:s.cheap(q),
-  }));
-}
-function renderResults(){
-  const host = $("results");
-  host.innerHTML = "";
-  if(results.length===0){
-    host.innerHTML = `<p class="muted">Henüz arama yapılmadı.</p>`;
-    return;
-  }
-  results.forEach(r=>{
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `
-      <div class="left">
-        <p class="title">${r.siteName}</p>
-        <p class="small">Arama: <b>${r.query}</b></p>
-      </div>
-      <div class="acts">
-        <button class="btnGhost ok">Aç</button>
-        <button class="btnGhost ok">En Ucuz Aç</button>
-      </div>
-    `;
-    row.querySelectorAll("button")[0].onclick = ()=>window.open(r.url,"_blank");
-    row.querySelectorAll("button")[1].onclick = ()=>window.open(r.cheapUrl,"_blank");
-    host.appendChild(row);
-  });
-}
-
-$("searchBtn").onclick = ()=>{
-  const q = $("q").value.trim();
-  if(!q) return toast("Ürün adı yaz.");
-  results = makeResults(q);
-  renderResults();
-};
-$("clearResultsBtn").onclick = ()=>{ results=[]; renderResults(); };
-
-$("openCheapestAll").onclick = ()=>{
-  const q = $("q").value.trim();
-  if(!q) return toast("Ürün adı yaz.");
-  const items = makeResults(q);
-  items.forEach((it,i)=> setTimeout(()=>window.open(it.cheapUrl,"_blank"), i*220));
-};
-
-function buildLinks(queryText){
-  const map = {};
-  SITES.forEach(s=> map[s.id] = { normal:s.url(queryText), cheap:s.cheap(queryText) });
-  return map;
-}
-
-$("addFavBtn").onclick = async ()=>{
-  if(!user) return openAuth("login");
-  if(!user.emailVerified) return openAuth("ver");
-  const q = $("q").value.trim();
-  if(!q) return toast("Ürün adı yaz.");
-  if(favorites.some(f=>f.query===q)) return toast("Zaten favorilerde.");
-  const f = { id: crypto.randomUUID(), title:q, query:q, createdAt:Date.now(), links: buildLinks(q) };
-  favorites.unshift(f);
-  renderFavorites();
-  toast("Favoriye eklendi ✅");
-  await saveFav(f);
-};
-
-// -------------------- Favorites UI --------------------
-async function copyText(text){
-  try{ await navigator.clipboard.writeText(text); toast("Kopyalandı ✅"); }
-  catch{
-    const ta=document.createElement("textarea");
-    ta.value=text; document.body.appendChild(ta);
-    ta.select(); document.execCommand("copy"); ta.remove();
-    toast("Kopyalandı ✅");
-  }
-}
-
-function renderFavorites(){
-  const host = $("favorites");
-  host.innerHTML = "";
-  if(!user){ host.innerHTML=`<p class="muted">Favoriler için giriş yap.</p>`; return; }
-  if(!user.emailVerified){ host.innerHTML=`<p class="muted">Email doğrula.</p>`; return; }
-  if(favorites.length===0){ host.innerHTML=`<p class="muted">Favori yok.</p>`; return; }
-
-  favorites.forEach(f=>{
-    const links = f.links || buildLinks(f.query);
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `
-      <div class="left">
-        <p class="title">${f.title}</p>
-        <p class="small">${new Date(f.createdAt).toLocaleString()}</p>
-      </div>
-      <div class="acts">
-        <button class="btnGhost ok">Trendyol</button>
-        <button class="btnGhost ok">HB</button>
-        <button class="btnGhost ok">N11</button>
-        <button class="btnGhost ok">Amazon</button>
-        <button class="btnGhost">Copy</button>
-        <button class="btnGhost danger">Sil</button>
-      </div>
-    `;
-    const btns = row.querySelectorAll("button");
-    btns[0].onclick = ()=>window.open(links.trendyol?.cheap || links.trendyol?.normal,"_blank");
-    btns[1].onclick = ()=>window.open(links.hb?.cheap || links.hb?.normal,"_blank");
-    btns[2].onclick = ()=>window.open(links.n11?.cheap || links.n11?.normal,"_blank");
-    btns[3].onclick = ()=>window.open(links.amazon?.cheap || links.amazon?.normal,"_blank");
-    btns[4].onclick = ()=>copyText(links.trendyol?.normal || f.query);
-    btns[5].onclick = async ()=>{
-      favorites = favorites.filter(x=>x.id!==f.id);
-      renderFavorites();
-      await delFav(f.id);
-    };
-    host.appendChild(row);
-  });
-}
-
-$("clearFavBtn").onclick = async ()=>{
-  if(!user) return openAuth("login");
-  if(!user.emailVerified) return openAuth("ver");
-  if(!confirm("Tüm favoriler silinsin mi?")) return;
-  for(const f of favorites) await delFav(f.id);
-  favorites = [];
-  renderFavorites();
-  toast("Silindi.");
-};
-
-// -------------------- Alerts --------------------
-async function ensureNotif(){
-  if(!("Notification" in window)) { toast("Bildirim desteklenmiyor."); return false; }
-  if(Notification.permission==="granted") return true;
-  const p = await Notification.requestPermission();
-  return p==="granted";
-}
-async function notify(title, body){
-  const ok = await ensureNotif();
-  if(!ok) return;
-  try{ new Notification(title,{body}); }catch{ toast(body); }
-}
-
-$("notifBtn").onclick = ensureNotif;
-
-$("addAlertBtn").onclick = async ()=>{
-  if(!user) return openAuth("login");
-  if(!user.emailVerified) return openAuth("ver");
-
-  const title = $("alertTitle").value.trim();
-  const url = $("alertUrl").value.trim();
-  const cur = parseNum($("alertCurrent").value.trim());
-  const minPct = parseNum($("alertMinPct").value.trim()) ?? 5;
-
-  if(!title || !url || cur==null) return toast("Ürün adı + link + fiyat gir.");
-  const a = {
-    id: crypto.randomUUID(),
-    title, url,
-    minPct: Math.max(0, Math.min(100, minPct)),
-    history:[{t:Date.now(), price:cur}],
-    createdAt:Date.now(),
-    lastCheckedAt:0,
-    lastNotifiedAt:0
-  };
-  alerts.unshift(a);
-  renderAlerts();
-  toast("Uyarı eklendi 🔔");
-  await saveAlert(a);
-};
-
-$("checkBtn").onclick = async ()=>{
-  if(!user) return openAuth("login");
-  if(!user.emailVerified) return openAuth("ver");
-  const now = Date.now();
-  for(const a of alerts){
-    a.lastCheckedAt = now;
-    await saveAlert(a);
-  }
-  renderAlerts();
-  toast("Kontrol yapıldı.");
-};
-
-async function updateAlertPrice(id, newPrice){
-  const now = Date.now();
-  alerts = alerts.map(a=>{
-    if(a.id!==id) return a;
-    const hist = Array.isArray(a.history) ? a.history.slice() : [];
-    const prev = hist.length ? hist[hist.length-1].price : null;
-    hist.push({t:now, price:newPrice});
-    a.history = hist;
-
-    // %5 altı sayma, %5+ bildir
-    if(prev!=null){
-      const drop = pctDrop(prev, newPrice);
-      const thresh = a.minPct ?? 5;
-      const prevMin = min6(hist, true);
-      const isNewLow = (prevMin!=null) ? newPrice < prevMin : false;
-      const extraLowPct = (isNewLow && prevMin!=null) ? pctDrop(prevMin, newPrice) : 0;
-
-      if(drop >= thresh && (now - (a.lastNotifiedAt||0) > 60*60*1000)){
-        a.lastNotifiedAt = now;
-        let msg = `${a.title}: %${drop.toFixed(1)} indirim (${prev} → ${newPrice})`;
-        if(isNewLow){
-          msg += ` • 6 ayın en düşüğü! (Önceki min ${prevMin} → ${newPrice}, ek %${extraLowPct.toFixed(1)})`;
-        }
-        notify("Fiyat düştü ✅", msg);
-      }
-    }
-    return a;
-  });
-
-  renderAlerts();
-  const a = alerts.find(x=>x.id===id);
-  if(a) await saveAlert(a);
-}
-
-function renderAlerts(){
-  const host = $("alerts");
-  host.innerHTML = "";
-  if(!user){ host.innerHTML=`<p class="muted">Uyarılar için giriş yap.</p>`; return; }
-  if(!user.emailVerified){ host.innerHTML=`<p class="muted">Email doğrula.</p>`; return; }
-  if(alerts.length===0){ host.innerHTML=`<p class="muted">Uyarı yok.</p>`; return; }
-
-  alerts.forEach(a=>{
-    const hist = a.history || [];
-    const last = hist.length ? hist[hist.length-1].price : null;
-    const prev = hist.length>1 ? hist[hist.length-2].price : null;
-    const drop = (prev!=null && last!=null) ? pctDrop(prev,last) : 0;
-    const prevMin = min6(hist, true);
-    const isNewLow = (prevMin!=null && last!=null) ? last < prevMin : false;
-
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `
-      <div class="left">
-        <p class="title">${a.title}</p>
-        <p class="small">${a.url}</p>
-        <p class="small">Son: <b>${last ?? "-"}</b> • Eşik: <b>%${a.minPct ?? 5}</b> • Son değişim: <b>%${drop.toFixed(1)}</b></p>
-        <p class="small">${isNewLow ? "✅ 6 ayın en düşüğü!" : `6 ay min: ${prevMin ?? "-"}`}</p>
-      </div>
-      <div class="acts">
-        <button class="btnGhost ok">Aç</button>
-        <button class="btnGhost">Fiyat Güncelle</button>
-        <button class="btnGhost danger">Sil</button>
-      </div>
-    `;
-    const btns = row.querySelectorAll("button");
-    btns[0].onclick = ()=>window.open(a.url,"_blank");
-    btns[1].onclick = async ()=>{
-      const v = prompt("Yeni fiyat:", last!=null?String(last):"");
-      if(v==null) return;
-      const n = parseNum(v);
-      if(n==null) return toast("Geçersiz fiyat");
-      await updateAlertPrice(a.id, n);
-      toast("Fiyat eklendi (geçmişe).");
-    };
-    btns[2].onclick = async ()=>{
-      alerts = alerts.filter(x=>x.id!==a.id);
-      renderAlerts();
-      await delAlert(a.id);
-    };
-    host.appendChild(row);
-  });
-}
-
-// -------------------- AI --------------------
-const AI_KEY = "ft_ai_key";
-const AI_PROVIDER = "ft_ai_provider";
-const aiSheet = $("aiSheet");
-
-$("aiBtn").onclick = ()=> aiSheet.classList.add("open");
-$("aiClose").onclick = ()=> aiSheet.classList.remove("open");
-aiSheet.addEventListener("click", (e)=>{ if(e.target===aiSheet) aiSheet.classList.remove("open"); });
-
-$("saveAiKey").onclick = ()=>{
-  LS.set(AI_KEY, ($("aiKey").value||"").trim());
-  LS.set(AI_PROVIDER, $("aiProvider").value);
-  $("aiStatus").textContent = "Key kaydedildi.";
-  toast("AI key kaydedildi.");
-};
-$("fillExample").onclick = ()=>{
-  $("aiPrompt").value = "Xiaomi Pad 7 256GB tablet en ucuz?";
-  toast("Örnek dolduruldu.");
-};
-
-function aiPromptWrap(raw){
-  return `Kullanıcının yazdığını tek satır ürün arama sorgusuna çevir.
-Sadece sorguyu döndür, açıklama yazma.
-Girdi: ${raw}
-Çıktı:`.trim();
-}
-
-async function callGemini(apiKey, userText){
-  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
-  const res = await fetch(url,{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "x-goog-api-key": apiKey
-    },
-    body: JSON.stringify({
-      contents:[{role:"user", parts:[{text:userText}]}],
-      generationConfig:{temperature:0.2, maxOutputTokens:120}
-    })
-  });
-  if(!res.ok) throw new Error(await res.text());
-  const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.map(p=>p.text).join("") ?? "";
-  return String(text).trim();
-}
-
-async function aiToSearch(){
-  const provider = $("aiProvider").value;
-  const key = ($("aiKey").value || LS.get(AI_KEY,"")).trim();
-  const raw = ($("aiPrompt").value || "").trim();
-  if(!key) throw new Error("AI key boş.");
-  if(!raw) throw new Error("AI prompt boş.");
-  $("aiStatus").textContent = "AI çalışıyor…";
-
-  if(provider==="gemini"){
-    const out = await callGemini(key, aiPromptWrap(raw));
-    $("aiStatus").textContent = "AI hazır ✅";
-    return out;
-  }
-
-  $("aiStatus").textContent = "OpenAI tarayıcıda riskli. Backend önerilir.";
-  throw new Error("OpenAI tarayıcıda kapalı. İstersen Render proxy ile açarız.");
-}
-
-$("aiFill").onclick = async ()=>{
-  try{
-    const text = await aiToSearch();
-    $("q").value = text;
-    toast("Arama dolduruldu.");
+    await ensureUserDoc(cred.user.uid, cred.user.email);
+    msg("Kayıt tamam! Email doğrulama linki gönderildi. Maili onayla, sonra giriş yap.", "info");
   }catch(e){
-    $("aiStatus").textContent = e?.message || "AI hata";
-    toast(e?.message || "AI hata");
+    msg("Kayıt hatası: " + e.message, "error");
   }
 };
-$("aiSearch").onclick = async ()=>{
-  await $("aiFill").onclick();
-  $("searchBtn").click();
+
+$("btnSignIn").onclick = async () => {
+  hide($("authMsg"));
+  const email = $("inEmail").value.trim();
+  const pass = $("inPass").value.trim();
+  if (!email || !pass) return msg("Email ve şifre boş olamaz.", "error");
+  try{
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    if (!cred.user.emailVerified) {
+      msg("Email doğrulanmamış. Mailini onayla. İstersen 'Doğrulama Maili Tekrar' butonuna bas.", "error");
+      await signOut(auth);
+      return;
+    }
+  }catch(e){
+    msg("Giriş hatası: " + e.message, "error");
+  }
 };
 
-// -------------------- init --------------------
-renderSites();
-renderResults();
-renderFavorites();
-renderAlerts();
+$("btnResendVerify").onclick = async () => {
+  try{
+    const email = $("inEmail").value.trim();
+    const pass = $("inPass").value.trim();
+    if (!email || !pass) return msg("Önce email+şifre gir.", "error");
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    await sendEmailVerification(cred.user);
+    msg("Doğrulama maili tekrar gönderildi. Mailini onaylayınca giriş yap.", "info");
+    await signOut(auth);
+  }catch(e){
+    msg("Hata: " + e.message, "error");
+  }
+};
 
-// SW
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js").catch(()=>{});
+$("btnForgot").onclick = async () => {
+  try{
+    const email = $("inEmail").value.trim();
+    if (!email) return msg("Şifre sıfırlama için email gir.", "error");
+    await sendPasswordResetEmail(auth, email);
+    msg("Şifre sıfırlama maili gönderildi.", "info");
+  }catch(e){
+    msg("Hata: " + e.message, "error");
+  }
+};
+
+$("btnLogout").onclick = () => signOut(auth);
+
+/* =========================
+   Auth State
+   ========================= */
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  if (!user) {
+    show($("authOverlay"));
+    return;
+  }
+  if (!user.emailVerified) {
+    show($("authOverlay"));
+    msg("Email doğrulanmamış. Lütfen mailini onayla.", "error");
+    return;
+  }
+  hide($("authOverlay"));
+  await ensureUserDoc(user.uid, user.email);
+  buildSiteChips();
+  await loadFavorites();
+});
+
+/* =========================
+   Firestore Helpers
+   ========================= */
+async function ensureUserDoc(uid, email){
+  const ref = doc(db, "users", uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()){
+    await setDoc(ref, { email, createdAt: serverTimestamp() });
+  }
 }
 
-// -------------------- auth state --------------------
-onAuthStateChanged(auth, async (u)=>{
-  user = u || null;
+function favCol(){
+  return collection(db, "users", currentUser.uid, "favorites");
+}
 
-  if(!user){
-    $("banner").textContent = "Giriş yapmadın. Favori/Uyarı için giriş gerekli.";
-    favorites = []; alerts = [];
-    renderFavorites(); renderAlerts();
-    await openAuth("login");
+function priceCol(favId){
+  return collection(db, "users", currentUser.uid, "favorites", favId, "prices");
+}
+
+/* =========================
+   UI: Site Chips
+   ========================= */
+function buildSiteChips(){
+  const wrap = $("siteChips");
+  wrap.innerHTML = "";
+  for (const s of SITES){
+    const chip = document.createElement("div");
+    chip.className = "chip active";
+    chip.innerHTML = `<span class="dot"></span><b>${s.name}</b>`;
+    chip.onclick = () => {
+      if (selectedSites.has(s.key)) {
+        selectedSites.delete(s.key);
+        chip.classList.remove("active");
+      } else {
+        selectedSites.add(s.key);
+        chip.classList.add("active");
+      }
+    };
+    wrap.appendChild(chip);
+  }
+}
+
+/* =========================
+   Search
+   ========================= */
+$("btnSearch").onclick = doSearch;
+$("q").addEventListener("keydown", (e)=>{ if(e.key==="Enter") doSearch(); });
+$("btnClearResults").onclick = () => {
+  $("resultList").className = "list empty";
+  $("resultList").textContent = "Henüz arama yapılmadı.";
+};
+
+async function doSearch(){
+  const term = $("q").value.trim();
+  if (!term) return;
+
+  const active = SITES.filter(s=>selectedSites.has(s.key));
+  const list = $("resultList");
+  list.className = "list";
+  list.innerHTML = "";
+
+  if (!active.length){
+    list.className = "list empty";
+    list.textContent = "Hiç site seçilmedi.";
     return;
   }
 
-  if(user && !user.emailVerified){
-    $("banner").textContent = `Giriş: ${user.email} • Email doğrulaması gerekli`;
-    favorites = []; alerts = [];
-    renderFavorites(); renderAlerts();
-    await openAuth("ver");
+  for (const s of active){
+    const url = s.base + encodeURIComponent(term);
+    const row = document.createElement("div");
+    row.className = "rowItem";
+    row.innerHTML = `
+      <div>
+        <div class="rowTitle">${s.name}</div>
+        <div class="rowMeta">${term}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="smallbtn open">Aç</button>
+        <button class="smallbtn primary">Favori Ekle</button>
+      </div>
+    `;
+    const [btnOpen, btnFav] = row.querySelectorAll("button");
+    btnOpen.onclick = () => window.open(url, "_blank");
+    btnFav.onclick = async () => {
+      await addFavorite({ title: term, siteKey: s.key, siteName: s.name, url });
+      toast(`Favoriye eklendi: ${term} (${s.name})`);
+      await loadFavorites();
+    };
+    list.appendChild(row);
+  }
+}
+
+/* =========================
+   Favorites
+   ========================= */
+$("btnDeleteAllFav").onclick = async () => {
+  if (!currentUser) return;
+  if (!confirm("Tüm favoriler silinsin mi?")) return;
+  const snaps = await getDocs(favCol());
+  for (const d of snaps.docs){
+    await deleteDoc(d.ref);
+  }
+  await loadFavorites();
+};
+
+async function addFavorite({title, siteKey, siteName, url}){
+  // aynı ürün+site tekrar eklenmesin diye basit kontrol
+  const q1 = query(favCol(), where("title","==",title), where("siteKey","==",siteKey), limit(1));
+  const ex = await getDocs(q1);
+  if (!ex.empty) return;
+
+  await addDoc(favCol(), {
+    title,
+    siteKey,
+    siteName,
+    url,
+    createdAt: serverTimestamp(),
+    lastPrice: null,
+    lastPriceAt: null
+  });
+}
+
+async function loadFavorites(){
+  const wrap = $("favList");
+  wrap.innerHTML = "";
+  const snaps = await getDocs(query(favCol(), orderBy("createdAt","desc")));
+  if (snaps.empty){
+    wrap.className = "favGrid empty";
+    wrap.textContent = "Favori yok.";
+    return;
+  }
+  wrap.className = "favGrid";
+
+  for (const d of snaps.docs){
+    const fav = { id:d.id, ...d.data() };
+    const card = document.createElement("div");
+    card.className = "favCard";
+
+    // mini chart canvas
+    const canvasId = `mini_${fav.id}`;
+
+    card.innerHTML = `
+      <div class="favTop">
+        <div>
+          <div class="favTitle">${escapeHtml(fav.title)}</div>
+          <div class="favSub">${escapeHtml(fav.siteName)} • Link gizli</div>
+        </div>
+        <div class="badges">
+          <span class="badge">${escapeHtml(fav.siteName)}</span>
+          <span class="badge">${fav.lastPrice ? (formatTL(fav.lastPrice) + " • Son") : "Fiyat yok"}</span>
+        </div>
+      </div>
+
+      <div class="favActions">
+        <button class="smallbtn open">Aç</button>
+        <button class="smallbtn copy">Copy Link</button>
+        <button class="smallbtn price">Fiyat Ekle</button>
+        <button class="smallbtn del">Sil</button>
+      </div>
+
+      <div class="miniChart" data-favid="${fav.id}" title="Grafiği büyütmek için tıkla">
+        <canvas id="${canvasId}" width="900" height="220"></canvas>
+      </div>
+    `;
+
+    const [btnOpen, btnCopy, btnPrice, btnDel] = card.querySelectorAll("button");
+    btnOpen.onclick = () => window.open(fav.url, "_blank");
+    btnCopy.onclick = async () => {
+      await navigator.clipboard.writeText(fav.url);
+      toast("Link kopyalandı ✅");
+    };
+    btnDel.onclick = async () => {
+      if (!confirm("Favori silinsin mi?")) return;
+      await deleteDoc(doc(db, "users", currentUser.uid, "favorites", fav.id));
+      await loadFavorites();
+    };
+
+    btnPrice.onclick = () => openPriceModal(fav);
+
+    // chart click -> open big
+    card.querySelector(".miniChart").onclick = async () => {
+      await openChartModal(fav);
+    };
+
+    wrap.appendChild(card);
+
+    // draw mini
+    const history = await getLastPrices(fav.id, 60);
+    drawChart($(canvasId), history);
+  }
+}
+
+/* =========================
+   Price Modal
+   ========================= */
+let priceModalState = null;
+
+function openPriceModal(fav){
+  priceModalState = fav;
+  $("pmTitle").textContent = "Fiyat Ekle";
+  $("pmSub").textContent = `${fav.title} • ${fav.siteName}`;
+  $("pmPrice").value = "";
+  $("pmNote").value = "";
+  showModal("priceModal");
+}
+
+$("pmClose").onclick = closeModals;
+$("pmCancel").onclick = closeModals;
+
+$("pmSave").onclick = async () => {
+  const fav = priceModalState;
+  if (!fav) return;
+
+  const price = Number($("pmPrice").value);
+  if (!price || price <= 0){
+    toast("Geçerli fiyat gir.");
+    return;
+  }
+  const note = $("pmNote").value.trim();
+
+  // last price
+  const last = await getLastPrice(fav.id);
+
+  // save price record
+  await addDoc(priceCol(fav.id), {
+    price,
+    note,
+    at: serverTimestamp(),
+    ts: Date.now()
+  });
+
+  // update fav lastPrice
+  await setDoc(doc(db, "users", currentUser.uid, "favorites", fav.id), {
+    ...fav,
+    lastPrice: price,
+    lastPriceAt: Date.now()
+  }, { merge:true });
+
+  closeModals();
+  toast("Fiyat kaydedildi ✅");
+
+  // indirim kontrol
+  if (last && last.price){
+    const dropPct = ((last.price - price) / last.price) * 100;
+    if (dropPct >= 5){
+      const txt = `${fav.title} ${fav.siteName} fiyatı %${dropPct.toFixed(1)} düştü! (${formatTL(last.price)} → ${formatTL(price)})`;
+      toast(txt);
+      notify("Fiyat düştü!", txt);
+    }
+  }
+
+  await loadFavorites();
+};
+
+/* =========================
+   Chart Modal
+   ========================= */
+$("cmClose").onclick = closeModals;
+
+async function openChartModal(fav){
+  $("cmTitle").textContent = "Fiyat Grafiği";
+  $("cmSub").textContent = `${fav.title} • ${fav.siteName}`;
+
+  const history = await getLastPrices(fav.id, 180);
+  drawChart($("bigChart"), history);
+
+  // table
+  const tbl = $("cmTable");
+  tbl.innerHTML = "";
+  if (!history.length){
+    tbl.innerHTML = `<div class="tr"><div class="td">Kayıt yok</div><div class="td m"></div></div>`;
+  } else {
+    for (const h of history.slice().reverse()){
+      tbl.innerHTML += `
+        <div class="tr">
+          <div class="td">${new Date(h.ts).toLocaleString("tr-TR")}</div>
+          <div class="td m">${formatTL(h.price)} ${h.note ? (" • " + escapeHtml(h.note)) : ""}</div>
+        </div>
+      `;
+    }
+  }
+
+  showModal("chartModal");
+}
+
+/* =========================
+   Firestore Price reads
+   ========================= */
+async function getLastPrice(favId){
+  const snaps = await getDocs(query(priceCol(favId), orderBy("ts","desc"), limit(1)));
+  if (snaps.empty) return null;
+  return snaps.docs[0].data();
+}
+
+async function getLastPrices(favId, n=60){
+  const snaps = await getDocs(query(priceCol(favId), orderBy("ts","desc"), limit(n)));
+  const arr = snaps.docs.map(d=>d.data()).reverse(); // oldest->newest
+  return arr;
+}
+
+/* =========================
+   Notifications
+   ========================= */
+$("btnAskNotify").onclick = async () => {
+  if (!("Notification" in window)){
+    toast("Bu cihaz bildirim desteklemiyor.");
+    return;
+  }
+  const p = await Notification.requestPermission();
+  toast("Bildirim izni: " + p);
+};
+
+function notify(title, body){
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+  new Notification(title, { body });
+}
+
+/* =========================
+   Modal helpers
+   ========================= */
+function showModal(id){
+  show($("modalBackdrop"));
+  show($(id));
+}
+function closeModals(){
+  hide($("modalBackdrop"));
+  hide($("priceModal"));
+  hide($("chartModal"));
+  priceModalState = null;
+}
+
+/* =========================
+   Toast
+   ========================= */
+let toastTimer = null;
+function toast(text){
+  let t = document.getElementById("toast");
+  if (!t){
+    t = document.createElement("div");
+    t.id = "toast";
+    t.style.position = "fixed";
+    t.style.left = "50%";
+    t.style.bottom = "18px";
+    t.style.transform = "translateX(-50%)";
+    t.style.zIndex = "2000";
+    t.style.padding = "12px 14px";
+    t.style.borderRadius = "14px";
+    t.style.border = "1px solid #e5e7eb";
+    t.style.background = "#fff";
+    t.style.boxShadow = "0 14px 45px rgba(0,0,0,.18)";
+    t.style.fontWeight = "800";
+    t.style.maxWidth = "92vw";
+    document.body.appendChild(t);
+  }
+  t.textContent = text;
+  t.style.display = "block";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.style.display="none", 3200);
+}
+
+/* =========================
+   Chart (Canvas)
+   ========================= */
+function drawChart(canvas, data){
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+
+  ctx.clearRect(0,0,w,h);
+  // background
+  ctx.fillStyle = "#fafcff";
+  ctx.fillRect(0,0,w,h);
+
+  if (!data || data.length < 2){
+    ctx.fillStyle = "#64748b";
+    ctx.font = "700 28px system-ui";
+    ctx.fillText("Grafik için en az 2 fiyat kaydı lazım", 24, 70);
     return;
   }
 
-  $("banner").textContent = `Giriş: ${user.email} ✅`;
-  closeAuth();
-  await loadUserData(user.uid);
+  const prices = data.map(d=>d.price);
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  const pad = 40;
 
-  // AI restore
-  $("aiKey").value = LS.get(AI_KEY,"");
-  $("aiProvider").value = LS.get(AI_PROVIDER,"gemini");
-  $("aiStatus").textContent = "AI hazır.";
-});
+  const xStep = (w - pad*2) / (data.length - 1);
+  const scaleY = (h - pad*2) / (max - min || 1);
+
+  // axis
+  ctx.strokeStyle = "#e5e7eb";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(pad, pad);
+  ctx.lineTo(pad, h-pad);
+  ctx.lineTo(w-pad, h-pad);
+  ctx.stroke();
+
+  // labels
+  ctx.fillStyle = "#334155";
+  ctx.font = "800 20px system-ui";
+  ctx.fillText(`${formatTL(max)}`, 10, pad+10);
+  ctx.fillText(`${formatTL(min)}`, 10, h-pad);
+
+  // line
+  ctx.strokeStyle = "#3f51b5";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  data.forEach((d,i)=>{
+    const x = pad + i*xStep;
+    const y = h - pad - (d.price - min)*scaleY;
+    if (i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // points
+  ctx.fillStyle = "#3f51b5";
+  data.forEach((d,i)=>{
+    const x = pad + i*xStep;
+    const y = h - pad - (d.price - min)*scaleY;
+    ctx.beginPath();
+    ctx.arc(x,y,6,0,Math.PI*2);
+    ctx.fill();
+  });
+
+  // last label
+  const last = data[data.length-1];
+  ctx.fillStyle = "#0f172a";
+  ctx.font = "900 22px system-ui";
+  ctx.fillText(`Son: ${formatTL(last.price)}`, pad, pad+22);
+}
+
+/* =========================
+   Utils
+   ========================= */
+function formatTL(n){
+  try{
+    return new Intl.NumberFormat("tr-TR", { style:"currency", currency:"TRY", maximumFractionDigits:0 }).format(n);
+  }catch{
+    return n + " TL";
+  }
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+          }
