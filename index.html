@@ -1,59 +1,202 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#3f51b5" />
   <title>FiyatTakip</title>
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#3F51B5">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
+  <!-- AUTH OVERLAY (tam ekran) -->
+  <div id="authOverlay" class="authOverlay">
+    <div class="authCard">
+      <div class="brandRow">
+        <div class="logo">₺</div>
+        <div>
+          <div class="brandTitle">FiyatTakip</div>
+          <div class="muted">Giriş yap / kayıt ol</div>
+        </div>
+      </div>
 
-<!-- AUTH OVERLAY -->
-<div id="authOverlay" class="auth-overlay">
-  <div class="auth-card">
-    <h2>FiyatTakip</h2>
+      <div class="tabs">
+        <button id="tabSignIn" class="tab active">Giriş</button>
+        <button id="tabSignUp" class="tab">Kayıt</button>
+      </div>
 
-    <input id="email" type="email" placeholder="E-posta">
-    <input id="password" type="password" placeholder="Şifre">
+      <div id="authMsg" class="msg hidden"></div>
 
-    <button id="loginBtn">Giriş Yap</button>
-    <button id="registerBtn">Kayıt Ol</button>
-    <button id="googleBtn">Google ile Giriş</button>
+      <div id="panelSignIn">
+        <label class="lbl">Email</label>
+        <input id="inEmail" class="inp" type="email" placeholder="ornek@mail.com" autocomplete="email" />
 
-    <p id="authMsg"></p>
+        <label class="lbl">Şifre</label>
+        <div class="pwrow">
+          <input id="inPass" class="inp" type="password" placeholder="••••••••" autocomplete="current-password" />
+          <button id="toggleInPass" class="iconbtn" type="button" title="Göster/Gizle">👁</button>
+        </div>
+
+        <button id="btnSignIn" class="btn primary full">Giriş Yap</button>
+
+        <div class="row">
+          <button id="btnForgot" class="btn ghost full">Şifremi Unuttum</button>
+          <button id="btnResendVerify" class="btn ghost full">Doğrulama Maili</button>
+        </div>
+      </div>
+
+      <div id="panelSignUp" class="hidden">
+        <label class="lbl">Email</label>
+        <input id="upEmail" class="inp" type="email" placeholder="ornek@mail.com" autocomplete="email" />
+
+        <label class="lbl">Şifre</label>
+        <div class="pwrow">
+          <input id="upPass" class="inp" type="password" placeholder="En az 6 karakter" autocomplete="new-password" />
+          <button id="toggleUpPass" class="iconbtn" type="button" title="Göster/Gizle">👁</button>
+        </div>
+
+        <label class="lbl">Şifre (Tekrar)</label>
+        <div class="pwrow">
+          <input id="upPass2" class="inp" type="password" placeholder="Şifre tekrar" autocomplete="new-password" />
+          <button id="toggleUpPass2" class="iconbtn" type="button" title="Göster/Gizle">👁</button>
+        </div>
+
+        <button id="btnSignUp" class="btn primary full">Hesap Oluştur</button>
+        <div class="muted small">
+          Kayıt sonrası doğrulama maili gelir. Maili onaylamadan uygulama açılmaz.
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="muted small">
+        Bu sürüm: çoklu site arama + favori + fiyat geçmişi + %5 düşüş bildirimi + grafik.
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- APP -->
-<header>
-  <span class="logo">fiyattakip</span>
-  <button id="logoutBtn">Çıkış</button>
-</header>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="pill">fiyattakip</div>
+    <div class="topActions">
+      <button id="btnNotify" class="iconbtn" title="Bildirim İzni">🔔</button>
+      <button id="btnAiToggle" class="iconbtn" title="AI Arama">🤖</button>
+      <button id="btnLogout" class="btn danger">Çıkış</button>
+    </div>
+  </header>
 
-<main>
+  <main class="container" id="appRoot">
+    <!-- SEARCH -->
+    <section class="card">
+      <h1>Fiyat Arama</h1>
+      <p class="muted">
+        Ürün yaz, seçtiğin sitelerde arama aç. Favoriye ekle. Fiyat ekleyince düşüş+grafik otomatik.
+      </p>
 
-<section class="card">
-  <h1>Ürün Ara</h1>
+      <div id="siteChips" class="chips"></div>
 
-  <input id="searchInput" placeholder="Ürün adı">
-  <button id="searchBtn">Ara</button>
+      <div class="searchRow">
+        <input id="q" class="inp big" placeholder="Örn: Xiaomi Pad 7 256GB" />
+        <button id="btnSearch" class="btn primary">Ara</button>
+      </div>
 
-  <div id="results"></div>
-</section>
+      <!-- AI DEMO -->
+      <div id="aiBox" class="aiBox hidden">
+        <div class="aiHead">
+          <div class="aiTitle">AI Arama (Demo)</div>
+          <div class="muted small">API key alanı hazır; şimdilik demo cevap üretir.</div>
+        </div>
+        <input id="aiKey" class="inp" type="password" placeholder="Gemini/GPT API Key (demo)" />
+        <textarea id="aiPrompt" class="inp" rows="3" placeholder="Örn: 'Xiaomi Pad 7 256GB için en iyi arama terimi nedir?'"></textarea>
+        <button id="btnAiAsk" class="btn ghost">Öneri Al</button>
+        <div id="aiResult" class="muted small" style="margin-top:8px"></div>
+      </div>
 
-<section class="card">
-  <h2>❤️ Favoriler</h2>
-  <div id="favorites"></div>
-</section>
+      <div class="divider"></div>
 
-</main>
+      <div class="row between">
+        <div>
+          <div class="sectionTitle">Arama satırları</div>
+          <div class="muted small">Her satır: seçili sitede arama açar + favoriye ekler.</div>
+        </div>
+        <button id="btnClearResults" class="btn ghost">Temizle</button>
+      </div>
 
-<script type="module" src="firebase.js"></script>
-<script type="module" src="app.js"></script>
+      <div id="resultList" class="list empty">Henüz arama yapılmadı.</div>
+    </section>
 
+    <!-- FAVORITES -->
+    <section class="card">
+      <div class="row between">
+        <div>
+          <div class="sectionTitle">❤️ Favoriler</div>
+          <div class="muted small">Linkler gizli. Site butonları + Copy Link var. %5+ düşüşte bildirim.</div>
+        </div>
+        <div class="row">
+          <button id="btnRefreshFav" class="btn ghost">Yenile</button>
+        </div>
+      </div>
+
+      <div id="favList" class="favGrid empty">Favori yok.</div>
+    </section>
+  </main>
+
+  <!-- MODALS -->
+  <div id="backdrop" class="backdrop hidden"></div>
+
+  <!-- PRICE MODAL -->
+  <div id="priceModal" class="modal hidden">
+    <div class="modalCard">
+      <div class="modalHead">
+        <div>
+          <div class="modalTitle">Fiyat Ekle</div>
+          <div id="pmInfo" class="muted small"></div>
+        </div>
+        <button id="pmClose" class="iconbtn">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <label class="lbl">Fiyat (TL)</label>
+        <input id="pmPrice" class="inp" type="number" inputmode="numeric" placeholder="Örn: 12999" />
+        <label class="lbl">Not (opsiyonel)</label>
+        <input id="pmNote" class="inp" type="text" placeholder="Örn: kupon / kampanya" />
+
+        <div class="row" style="margin-top:10px">
+          <button id="pmCancel" class="btn ghost full">İptal</button>
+          <button id="pmSave" class="btn primary full">Kaydet</button>
+        </div>
+        <div class="muted small" style="margin-top:10px">
+          Kural: Son kayda göre <b>%5 ve üzeri düşüş</b> olursa uyarı + bildirim gösterilir.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART MODAL -->
+  <div id="chartModal" class="modal hidden">
+    <div class="modalCard wide">
+      <div class="modalHead">
+        <div>
+          <div id="cmTitle" class="modalTitle">Fiyat Grafiği</div>
+          <div id="cmSub" class="muted small"></div>
+        </div>
+        <button id="cmClose" class="iconbtn">✕</button>
+      </div>
+      <div class="modalBody">
+        <canvas id="bigChart" height="240"></canvas>
+        <div id="cmTable" class="table"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
-</html>
+  </html>
