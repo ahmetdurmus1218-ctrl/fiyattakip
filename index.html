@@ -1,380 +1,145 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fiyat Takip</title>
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#1f6feb" />
+  <meta name="theme-color" content="#3f51b5" />
 
   <style>
-    :root{
-      --bg:#f6f7fb;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --text:#111827;
-      --blue:#1f6feb;
-      --blue2:#2b7cff;
-      --shadow: 0 12px 30px rgba(0,0,0,.08);
-      --radius:16px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      display:flex;
-      justify-content:center;
-      padding:24px 12px;
-    }
-    .phone{
-      width:min(420px, 100%);
-      background:var(--card);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      border:1px solid rgba(0,0,0,.06);
-    }
-    .topbar{
-      padding:14px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      border-bottom:1px solid rgba(0,0,0,.06);
-      background:#fff;
-    }
-    .appbadge{
-      font-size:12px;
-      font-weight:700;
-      padding:4px 8px;
-      border-radius:999px;
-      background:rgba(31,111,235,.12);
-      color:var(--blue);
-    }
-    .burger{
-      width:40px;height:36px;
-      border-radius:12px;
-      border:1px solid rgba(0,0,0,.08);
-      background:#fff;
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;
-    }
-    .burger:active{transform:scale(.98)}
-    .burger span{
-      width:16px;height:2px;background:#111827;display:block;position:relative;border-radius:2px;
-    }
-    .burger span::before,.burger span::after{
-      content:"";position:absolute;left:0;width:16px;height:2px;background:#111827;border-radius:2px;
-    }
-    .burger span::before{top:-6px}
-    .burger span::after{top:6px}
-
-    .content{padding:18px 16px 16px}
-    h1{margin:6px 0 8px;font-size:22px}
-    .title{
-      font-size:28px;
-      margin:10px 0 6px;
-      color: #2d4ee0;
-      letter-spacing:-.2px;
-    }
-    .subtitle{color:var(--muted);margin:0 0 16px;font-size:14px}
-
-    .search{
-      background: #ffffff;
-      border:1px solid rgba(0,0,0,.08);
-      border-radius:14px;
-      padding:10px 12px;
-      display:flex;
-      gap:10px;
-      align-items:center;
-      box-shadow: 0 10px 22px rgba(0,0,0,.04);
-    }
-    .search svg{flex:0 0 auto;opacity:.6}
-    .search input{
-      width:100%;
-      border:none;
-      outline:none;
-      font-size:14px;
-      background:transparent;
-    }
-    .btn{
-      width:100%;
-      margin-top:12px;
-      border:none;
-      border-radius:14px;
-      padding:14px 14px;
-      font-weight:700;
-      color:#fff;
-      background: linear-gradient(180deg, var(--blue2), var(--blue));
-      cursor:pointer;
-      box-shadow: 0 16px 28px rgba(31,111,235,.28);
-    }
-    .btn:active{transform:scale(.99)}
-    .hint{
-      margin-top:10px;
-      font-size:12px;
-      color:var(--muted);
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f6fa;
     }
 
-    .card{
-      margin-top:16px;
-      border-radius:14px;
-      padding:14px 14px;
-      background: linear-gradient(180deg, rgba(31,111,235,.10), rgba(31,111,235,.06));
-      border:1px solid rgba(31,111,235,.14);
-      display:flex;gap:12px;align-items:center;
-    }
-    .card .icon{
-      width:40px;height:40px;border-radius:14px;
-      background: rgba(31,111,235,.18);
-      display:flex;align-items:center;justify-content:center;
-      flex:0 0 auto;
-    }
-    .card .t1{font-weight:800;margin:0 0 2px}
-    .card .t2{margin:0;color:var(--muted);font-size:12px}
-
-    .grid{
-      margin-top:16px;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      padding-bottom:8px;
-    }
-    .tile{
-      border-radius:16px;
-      background:#fff;
-      border:1px solid rgba(0,0,0,.08);
-      padding:14px;
-      box-shadow: 0 10px 20px rgba(0,0,0,.04);
-      display:flex;flex-direction:column;gap:8px;
-      min-height:92px;
-    }
-    .tile .ti{
-      display:flex;align-items:center;gap:10px;
-      font-weight:800;
-    }
-    .tile .desc{margin:0;color:var(--muted);font-size:12px}
-    .tile .mini{
-      width:34px;height:34px;border-radius:12px;
-      display:flex;align-items:center;justify-content:center;
-      background: rgba(17,24,39,.06);
+    .phone {
+      max-width: 390px;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      padding: 16px;
     }
 
-    .results{
-      margin-top:14px;
-      display:none;
-      border-radius:14px;
-      border:1px solid rgba(0,0,0,.08);
-      overflow:hidden;
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
     }
-    .results-header{
-      padding:10px 12px;
-      background:#fff;
-      font-weight:800;
-      border-bottom:1px solid rgba(0,0,0,.08);
-    }
-    .result{
-      padding:12px;
-      background:#fff;
-      border-bottom:1px solid rgba(0,0,0,.06);
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .result:last-child{border-bottom:none}
-    .store{font-weight:800}
-    .price{font-weight:900}
-    .muted{color:var(--muted);font-size:12px}
 
-    .drawer{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.35);
-      display:none;
-      align-items:flex-end;
-      justify-content:center;
-      padding:14px;
+    .logo {
+      background: #e7ebff;
+      color: #3f51b5;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
     }
-    .sheet{
-      width:min(420px, 100%);
-      background:#fff;
-      border-radius:20px;
-      box-shadow:var(--shadow);
-      padding:14px;
+
+    h1 {
+      font-size: 22px;
+      margin: 12px 0 4px;
+      color: #222;
     }
-    .sheet h3{margin:6px 4px 10px}
-    .sheet a{
-      display:block;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid rgba(0,0,0,.08);
-      text-decoration:none;
-      color:var(--text);
-      margin-bottom:10px;
-      font-weight:700;
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 14px;
     }
-    .sheet a small{display:block;color:var(--muted);font-weight:500;margin-top:2px}
-    .sheet .close{
-      width:100%;
-      border:none;
-      border-radius:14px;
-      padding:12px;
-      background:rgba(0,0,0,.06);
-      font-weight:800;
-      cursor:pointer;
+
+    .search-box input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .search-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: #3f51b5;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .card {
+      background: #eef1ff;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 10px;
+    }
+
+    .mini-card {
+      flex: 1;
+      background: #f7f7f7;
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      font-size: 13px;
     }
   </style>
 </head>
 
 <body>
-  <div class="phone" role="application" aria-label="Fiyat Takip">
-    <div class="topbar">
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <span class="appbadge">fiyattakip</span>
-        <h1 style="margin:0;font-size:20px;font-weight:900">Ana Sayfa</h1>
-      </div>
-      <button class="burger" id="menuBtn" aria-label="Menü">
-        <span></span>
-      </button>
+
+  <div class="phone">
+    <div class="top">
+      <div class="logo">fiyattakip</div>
+      <div>☰</div>
     </div>
 
-    <div class="content">
-      <div class="title">Fiyat Karşılaştır</div>
-      <p class="subtitle">Ürün adını yaz, en güncel fiyatları karşılaştır</p>
+    <h1>Fiyat Karşılaştır</h1>
+    <div class="subtitle">Ürün adını yaz, en güncel fiyatları karşılaştır</div>
 
-      <div class="search">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2"/>
-          <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <input id="q" placeholder="Ürün adını yazın..." autocomplete="off" />
+    <div class="search-box">
+      <input type="text" placeholder="Ürün adını yazın..." />
+      <button class="search-btn">Ara</button>
+    </div>
+
+    <div class="card">
+      <strong>En iyi fiyatları bul</strong><br />
+      Binlerce mağazadan anlık fiyat karşılaştırması
+    </div>
+
+    <div class="bottom">
+      <div class="mini-card">
+        ❤️<br />
+        Favoriler<br />
+        Kayıtlı ürünler
       </div>
-
-      <button class="btn" id="searchBtn">Ara</button>
-      <div class="hint">Not: Şu an demo. API ekleyince gerçek fiyat çekilecek.</div>
-
-      <div class="card">
-        <div class="icon" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M4 12h4l3 8 4-16 3 8h3" stroke="#1f6feb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div>
-          <p class="t1">En iyi Fiyatları Bul</p>
-          <p class="t2">Binlerce mağazadan anlık fiyat karşılaştırması</p>
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="tile" id="favTile" role="button" tabindex="0">
-          <div class="ti">
-            <div class="mini" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M12 21s-7-4.6-9.3-8.4C.6 9.1 2.5 5.8 6 5.5c1.7-.2 3.3.6 4 2 .7-1.4 2.3-2.2 4-2 3.5.3 5.4 3.6 3.3 7.1C19 16.4 12 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            Favoriler
-          </div>
-          <p class="desc">Kayıtlı ürünlerin</p>
-        </div>
-
-        <div class="tile" id="notiTile" role="button" tabindex="0">
-          <div class="ti">
-            <div class="mini" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                <path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </div>
-            Bildirimler
-          </div>
-          <p class="desc">Fiyat düşüş uyarıları</p>
-        </div>
-      </div>
-
-      <div class="results" id="results">
-        <div class="results-header">Sonuçlar (Demo)</div>
-        <div class="result">
-          <div>
-            <div class="store">Mağaza A</div>
-            <div class="muted">Teslimat: 1-2 gün</div>
-          </div>
-          <div class="price">₺ 12.499</div>
-        </div>
-        <div class="result">
-          <div>
-            <div class="store">Mağaza B</div>
-            <div class="muted">Teslimat: 2-3 gün</div>
-          </div>
-          <div class="price">₺ 12.650</div>
-        </div>
-        <div class="result">
-          <div>
-            <div class="store">Mağaza C</div>
-            <div class="muted">Teslimat: 3-5 gün</div>
-          </div>
-          <div class="price">₺ 12.890</div>
-        </div>
+      <div class="mini-card">
+        🔔<br />
+        Bildirimler<br />
+        Fiyat düşüş uyarıları
       </div>
     </div>
   </div>
 
-  <!-- Drawer/Menu -->
-  <div class="drawer" id="drawer">
-    <div class="sheet">
-      <h3>Menü</h3>
-      <a href="#" id="goHome">Ana Sayfa<small>Arama ekranına dön</small></a>
-      <a href="#" id="goFav">Favoriler<small>Demo liste</small></a>
-      <a href="#" id="goNoti">Bildirimler<small>Demo bildirimler</small></a>
-      <button class="close" id="closeDrawer">Kapat</button>
-    </div>
-  </div>
-
+  <!-- SERVICE WORKER KAYDI (ZORUNLU) -->
   <script>
-    // PWA service worker
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(()=>{});
-      });
+      navigator.serviceWorker.register("./sw.js");
     }
-
-    const q = document.getElementById("q");
-    const results = document.getElementById("results");
-    const searchBtn = document.getElementById("searchBtn");
-
-    function doSearch(){
-      const text = (q.value || "").trim();
-      if(!text){
-        alert("Ürün adını yaz.");
-        q.focus();
-        return;
-      }
-      results.style.display = "block";
-      results.scrollIntoView({behavior:"smooth", block:"start"});
-    }
-
-    searchBtn.addEventListener("click", doSearch);
-    q.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doSearch(); });
-
-    // Drawer
-    const drawer = document.getElementById("drawer");
-    const menuBtn = document.getElementById("menuBtn");
-    const closeDrawer = document.getElementById("closeDrawer");
-
-    menuBtn.addEventListener("click", ()=> drawer.style.display="flex");
-    closeDrawer.addEventListener("click", ()=> drawer.style.display="none");
-    drawer.addEventListener("click", (e)=>{ if(e.target===drawer) drawer.style.display="none"; });
-
-    // Tiles
-    document.getElementById("favTile").addEventListener("click", ()=> alert("Favoriler (demo)"));
-    document.getElementById("notiTile").addEventListener("click", ()=> alert("Bildirimler (demo)"));
-
-    // Menu links
-    document.getElementById("goHome").addEventListener("click", (e)=>{ e.preventDefault(); drawer.style.display="none"; window.scrollTo({top:0, behavior:"smooth"}); });
-    document.getElementById("goFav").addEventListener("click", (e)=>{ e.preventDefault(); drawer.style.display="none"; alert("Favoriler (demo)"); });
-    document.getElementById("goNoti").addEventListener("click", (e)=>{ e.preventDefault(); drawer.style.display="none"; alert("Bildirimler (demo)"); });
   </script>
+
 </body>
 </html>
