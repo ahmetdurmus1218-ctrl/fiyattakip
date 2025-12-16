@@ -1,10 +1,11 @@
-const CACHE = "fiyattakip-v3";
+const CACHE = "fiyattakip-final-v1";
 const ASSETS = [
   "./",
   "./index.html",
+  "./styles.css",
   "./app.js",
+  "./firebase.js",
   "./manifest.json",
-  "./sw.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];
@@ -24,12 +25,7 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  const req = e.request;
   e.respondWith(
-    caches.match(req).then(cached => cached || fetch(req).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(req, copy));
-      return res;
-    }).catch(() => cached))
+    caches.match(e.request).then(cached => cached || fetch(e.request).catch(()=>cached))
   );
 });
