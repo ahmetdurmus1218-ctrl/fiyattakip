@@ -2,251 +2,183 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#4f5bd5" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#3f51b5" />
   <title>FiyatTakip</title>
 
   <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-
-  <style>
-    :root{
-      --p:#4f5bd5; --bg:#f5f6fa; --card:#fff; --muted:#6b7280;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    }
-    body{margin:0;background:var(--bg);color:#111827}
-    header{position:sticky;top:0;background:#fff;box-shadow:0 2px 18px rgba(0,0,0,.08);z-index:10}
-    .bar{max-width:920px;margin:0 auto;padding:12px 14px;display:flex;align-items:center;gap:10px}
-    .pill{background:#eef2ff;color:#1f2a7a;padding:6px 12px;border-radius:999px;font-weight:900}
-    .spacer{flex:1}
-    .btnIcon{width:42px;height:42px;border-radius:14px;border:1px solid #e5e7eb;background:#f9fafb;cursor:pointer;display:flex;align-items:center;justify-content:center}
-    .btnIcon.primary{background:#eef2ff;border-color:#c7d2fe}
-    .btnIcon svg{width:20px;height:20px}
-    main{max-width:920px;margin:0 auto;padding:14px}
-    h1{margin:10px 0 6px;font-size:28px}
-    .sub{margin:0 0 12px;color:var(--muted)}
-    .card{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 10px 25px rgba(0,0,0,.08);margin:14px 0}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    input,select,button{font:inherit;border-radius:14px;border:1px solid #e5e7eb;padding:12px;background:#fff;outline:none}
-    input:focus,select:focus{border-color:#c7d2fe;box-shadow:0 0 0 4px rgba(99,102,241,.12)}
-    .q{flex:1 1 280px}
-    .btn{background:var(--p);color:#fff;border:none;font-weight:900;cursor:pointer;padding:12px 16px;border-radius:16px}
-    .btnGhost{background:#eef2ff;color:#1f2a7a;border:1px solid #dbeafe;font-weight:900;cursor:pointer;border-radius:16px}
-    .danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
-    .ok{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
-    .muted{color:var(--muted);font-size:13px}
-    .hr{height:1px;background:#eef2f7;margin:12px 0}
-    .chip{padding:8px 10px;border-radius:999px;background:#f3f4f6;border:1px solid #e5e7eb;font-weight:900;font-size:13px;cursor:pointer;user-select:none}
-    .chip.active{background:#eef2ff;border-color:#c7d2fe;color:#1f2a7a}
-    .item{border:1px solid #eef2f7;border-radius:16px;padding:12px;display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
-    .left{min-width:0}
-    .title{margin:0 0 6px;font-weight:1000}
-    .small{margin:0;color:var(--muted);font-size:13px;word-break:break-word}
-    .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    /* Auth overlay */
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:100;align-items:center;justify-content:center;padding:14px}
-    .overlay.open{display:flex}
-    .auth{width:min(440px,96vw);background:#fff;border-radius:22px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-    .tabs{display:flex;gap:8px;margin:10px 0}
-    .tab{flex:1;border-radius:14px;border:1px solid #e5e7eb;background:#f9fafb;padding:10px 12px;font-weight:900;cursor:pointer}
-    .tab.active{background:#eef2ff;border-color:#c7d2fe;color:#1f2a7a}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media (max-width:720px){.grid2{grid-template-columns:1fr}}
-    /* AI sheet */
-    .sheetBg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:80}
-    .sheetBg.open{display:block}
-    .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:14px;max-height:78vh;overflow:auto;box-shadow:0 -18px 45px rgba(0,0,0,.20)}
-    .sheetHead{display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .note{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;padding:10px 12px;border-radius:14px;font-size:13px}
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-<header>
-  <div class="bar">
-    <span class="pill">fiyattakip</span>
-    <span class="spacer"></span>
-
-    <button class="btnIcon primary" id="aiBtn" title="AI Arama">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2v2"/><path d="M8 4h8"/>
-        <rect x="5" y="7" width="14" height="13" rx="3"/>
-        <path d="M9 12h.01M15 12h.01"/><path d="M8 16h8"/>
-      </svg>
-    </button>
-
-    <button class="btnIcon" id="logoutBtn" title="Çıkış">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>
-      </svg>
-    </button>
-  </div>
-</header>
-
-<main>
-  <h1>Fiyat Karşılaştır</h1>
-  <p class="sub" id="banner">Giriş durumu kontrol ediliyor…</p>
-
-  <!-- SEARCH -->
-  <div class="card">
-    <div class="row" id="siteList"></div>
-
-    <div class="row" style="margin-top:12px">
-      <input class="q" id="q" placeholder="Ürün adını yaz..." />
-      <button class="btn" id="searchBtn">Ara</button>
-      <button class="btnGhost ok" id="openCheapestAll">En Ucuz Aç</button>
-      <button class="btnGhost" id="addFavBtn">Favoriye Ekle</button>
-    </div>
-
-    <p class="muted" style="margin-top:10px">
-      Not: “En ucuz ürün linkini otomatik bulma” işi backend gerektirir. Burada seçili sitede “fiyata göre sırala” parametresi olanlarda açar.
-    </p>
-  </div>
-
-  <!-- RESULTS -->
-  <div class="card">
-    <div class="row" style="justify-content:space-between">
-      <div>
-        <div style="font-weight:1000">Arama</div>
-        <div class="muted">Seçili sitelerde arama açar.</div>
+  <!-- LOGIN OVERLAY (arka menü görünmez) -->
+  <div id="authOverlay" class="overlay">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="logo">₺</div>
+        <div>
+          <div class="brand-title">FiyatTakip</div>
+          <div class="brand-sub">Giriş yap / kayıt ol</div>
+        </div>
       </div>
-      <button class="btnGhost" id="clearResultsBtn">Temizle</button>
-    </div>
-    <div class="hr"></div>
-    <div id="results"></div>
-  </div>
 
-  <!-- FAVORITES -->
-  <div class="card">
-    <div class="row" style="justify-content:space-between">
-      <div>
-        <div style="font-weight:1000">❤️ Favoriler (kullanıcıya özel)</div>
-        <div class="muted">Linkler görünmez; butonla aç / copy ile kopyala.</div>
+      <div class="tabs">
+        <button id="tabSignIn" class="tab active">Giriş</button>
+        <button id="tabSignUp" class="tab">Kayıt</button>
       </div>
-      <button class="btnGhost danger" id="clearFavBtn">Hepsini Sil</button>
+
+      <div id="authMsg" class="msg hidden"></div>
+
+      <div id="signInPanel">
+        <label class="lbl">Email</label>
+        <input id="inEmail" class="inp" type="email" placeholder="ornek@mail.com" autocomplete="email" />
+        <label class="lbl">Şifre</label>
+        <div class="pwrow">
+          <input id="inPass" class="inp" type="password" placeholder="••••••••" autocomplete="current-password" />
+          <button id="btnToggleInPass" class="iconbtn" title="Göster/Gizle">👁</button>
+        </div>
+
+        <button id="btnSignIn" class="btn primary">Giriş Yap</button>
+
+        <div class="row">
+          <button id="btnForgot" class="btn ghost">Şifremi Unuttum</button>
+          <button id="btnResendVerify" class="btn ghost">Doğrulama Maili Tekrar</button>
+        </div>
+      </div>
+
+      <div id="signUpPanel" class="hidden">
+        <label class="lbl">Email</label>
+        <input id="upEmail" class="inp" type="email" placeholder="ornek@mail.com" autocomplete="email" />
+        <label class="lbl">Şifre</label>
+        <div class="pwrow">
+          <input id="upPass" class="inp" type="password" placeholder="En az 6 karakter" autocomplete="new-password" />
+          <button id="btnToggleUpPass" class="iconbtn" title="Göster/Gizle">👁</button>
+        </div>
+        <label class="lbl">Şifre (Tekrar)</label>
+        <div class="pwrow">
+          <input id="upPass2" class="inp" type="password" placeholder="Şifre tekrar" autocomplete="new-password" />
+          <button id="btnToggleUpPass2" class="iconbtn" title="Göster/Gizle">👁</button>
+        </div>
+
+        <button id="btnSignUp" class="btn primary">Hesap Oluştur</button>
+        <div class="smallmuted">
+          Kayıt olunca doğrulama maili gelir. Maili onaylamadan uygulama açılmaz.
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="smallmuted">
+        Not: Bu sürüm “arama açar + favori + manuel fiyat kaydı + %5+ indirim uyarısı + grafik” yapar.
+      </div>
     </div>
-    <div class="hr"></div>
-    <div id="favorites"></div>
   </div>
 
-  <!-- ALERTS -->
-  <div class="card">
-    <div style="font-weight:1000">🔔 İndirim Uyarıları (kullanıcıya özel)</div>
-    <p class="muted">
-      Şimdilik fiyatı sen güncellersin → geçmiş oluşur. Kural: <b>%5 altı sayma</b>, <b>%5+ olursa bildir</b>.
-      Ayrıca <b>6 ayın en düşüğüyse</b> “6 ayın en düşüğü” diye yazar.
-    </p>
+  <!-- APP -->
+  <header class="topbar">
+    <div class="pill">fiyattakip</div>
+    <button id="btnMenu" class="hamburger" title="Menü">☰</button>
+  </header>
 
-    <div class="grid2">
-      <input id="alertTitle" placeholder="Ürün adı" />
-      <input id="alertUrl" placeholder="Takip linki" />
-      <input id="alertCurrent" inputmode="decimal" placeholder="Şu anki fiyat (örn: 12999)" />
-      <input id="alertMinPct" inputmode="decimal" placeholder="Minimum indirim % (örn: 5)" />
-    </div>
+  <main class="container">
+    <section class="card hero">
+      <h1>Fiyat Karşılaştır</h1>
+      <p class="sub">
+        Ürün adını yaz, seçtiğin sitelerde arama aç. Favoriye ekle. Fiyat girince %5+ indirimleri bildirir ve grafik tutar.
+      </p>
 
-    <div class="row" style="margin-top:10px">
-      <button class="btn" id="addAlertBtn">Uyarı Ekle</button>
-      <button class="btnGhost" id="notifBtn">Bildirim İzni</button>
-      <button class="btnGhost" id="checkBtn">Kontrol</button>
-    </div>
+      <div class="siteChips" id="siteChips"></div>
 
-    <div class="hr"></div>
-    <div id="alerts"></div>
-  </div>
-</main>
-
-<!-- AI SHEET -->
-<div class="sheetBg" id="aiSheet">
-  <div class="sheet">
-    <div class="sheetHead">
-      <div style="font-weight:1000;font-size:18px">🤖 AI Arama</div>
-      <button class="btnIcon" id="aiClose" title="Kapat">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 6L6 18M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-    <div class="hr"></div>
-
-    <div class="grid2">
-      <select id="aiProvider">
-        <option value="gemini">Gemini</option>
-        <option value="openai">OpenAI (backend önerilir)</option>
-      </select>
-      <input id="aiKey" placeholder="AI API Key (Gemini önerilir)" />
-    </div>
-
-    <div class="row" style="margin-top:10px">
-      <button class="btnGhost" id="saveAiKey">Key Kaydet</button>
-      <button class="btnGhost" id="fillExample">Örnek Doldur</button>
-    </div>
-
-    <div class="hr"></div>
-    <input id="aiPrompt" placeholder="AI’ye sor: (örn: Xiaomi Pad 7 256GB tablet en ucuz?)" />
-    <div class="row" style="margin-top:10px">
-      <button class="btnGhost" id="aiFill">AI ile Aramayı Doldur</button>
-      <button class="btn" id="aiSearch">AI ile Ara</button>
-    </div>
-
-    <p class="muted" id="aiStatus" style="margin-top:10px"></p>
-    <div class="note" style="margin-top:10px">
-      Not: OpenAI key’i tarayıcıda kullanmak riskli. Şimdilik Gemini ile çalıştır.
-    </div>
-  </div>
-</div>
-
-<!-- AUTH -->
-<div class="overlay" id="authOverlay">
-  <div class="auth">
-    <div style="font-weight:1000;font-size:18px" id="authTitle">Giriş</div>
-    <div class="tabs">
-      <button class="tab active" id="tabLogin">Giriş</button>
-      <button class="tab" id="tabReg">Kayıt</button>
-      <button class="tab" id="tabVer">Doğrula</button>
-    </div>
-
-    <div id="paneLogin">
-      <div class="grid2">
-        <input id="loginEmail" placeholder="Email" autocomplete="email" />
-        <input id="loginPass" placeholder="Şifre" type="password" autocomplete="current-password" />
+      <div class="searchRow">
+        <input id="q" class="inp big" placeholder="Ürün adını yazın..." />
+        <button id="btnSearch" class="btn primary big">Ara</button>
       </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn" id="loginGo">Giriş Yap</button>
-        <button class="btnGhost" id="resetGo">Şifre Sıfırla</button>
-      </div>
-      <p class="muted" style="margin-top:10px">Favori/Uyarı için giriş ve email doğrulaması şart.</p>
-    </div>
 
-    <div id="paneReg" style="display:none">
-      <div class="grid2">
-        <input id="regEmail" placeholder="Email" autocomplete="email" />
-        <input id="regPass" placeholder="Şifre (min 6)" type="password" autocomplete="new-password" />
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn" id="regGo">Kayıt Ol</button>
-      </div>
-      <p class="muted" style="margin-top:10px">Kayıttan sonra doğrulama maili gider.</p>
-    </div>
-
-    <div id="paneVer" style="display:none">
       <div class="note">
-        Email doğrulama olmadan uygulama açılmaz. Maili açıp doğruladıktan sonra “Kontrol Et” de.
+        <b>Not:</b> Siteler tarayıcıdan otomatik fiyat vermiyor (CORS/bot). Bu yüzden bu uygulama
+        <b>arama açar</b>, sonra favoride <b>fiyatı sen girersin</b> ve indirim/graph otomatik olur.
       </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn" id="resendGo">Maili Tekrar Gönder</button>
-        <button class="btnGhost" id="checkVerGo">Kontrol Et</button>
+
+      <div class="results">
+        <div class="resultsHead">
+          <div>
+            <b>Arama sonuçları (site bazlı)</b>
+            <div class="smallmuted">Her satır seçili sitede arama açar + favoriye ekler.</div>
+          </div>
+          <button id="btnClearResults" class="btn ghost">Temizle</button>
+        </div>
+        <div id="resultList" class="list empty">Henüz arama yapılmadı.</div>
       </div>
+    </section>
+
+    <section class="card">
+      <div class="sectionHead">
+        <div>
+          <h2>❤️ Favoriler</h2>
+          <div class="smallmuted">Kaydettiğin ürünler burada. Linkler gizli; butonların içine gömülü.</div>
+        </div>
+        <div class="sectionActions">
+          <button id="btnAskNotify" class="btn ghost">Bildirim İzni Ver</button>
+          <button id="btnDeleteAllFav" class="btn danger">Favorileri Sil</button>
+        </div>
+      </div>
+
+      <div id="favList" class="favGrid empty">Favori yok.</div>
+    </section>
+
+    <footer class="foot">
+      <button id="btnLogout" class="btn ghost">Çıkış Yap</button>
+      <span class="smallmuted">© FiyatTakip</span>
+    </footer>
+  </main>
+
+  <!-- MODALS -->
+  <div id="modalBackdrop" class="backdrop hidden"></div>
+
+  <div id="priceModal" class="modal hidden">
+    <div class="modalHead">
+      <div>
+        <div class="modalTitle" id="pmTitle">Fiyat Ekle</div>
+        <div class="smallmuted" id="pmSub"></div>
+      </div>
+      <button id="pmClose" class="iconbtn">✕</button>
     </div>
 
-    <div class="hr"></div>
-    <p class="muted" id="authMsg"></p>
-  </div>
-</div>
+    <div class="modalBody">
+      <label class="lbl">Mevcut fiyat (TL)</label>
+      <input id="pmPrice" class="inp" type="number" inputmode="numeric" placeholder="Örn: 12999" />
 
-<script type="module" src="app.js"></script>
+      <label class="lbl">Not (opsiyonel)</label>
+      <input id="pmNote" class="inp" type="text" placeholder="Örn: kampanya, kupon vs" />
+
+      <div class="row">
+        <button id="pmSave" class="btn primary">Kaydet</button>
+        <button id="pmCancel" class="btn ghost">İptal</button>
+      </div>
+
+      <div class="divider"></div>
+      <div class="smallmuted">
+        Kural: Son kayda göre <b>%5 ve üzeri düşüş</b> varsa uyarı + bildirim gösterilir.
+      </div>
+    </div>
+  </div>
+
+  <div id="chartModal" class="modal hidden">
+    <div class="modalHead">
+      <div>
+        <div class="modalTitle" id="cmTitle">Fiyat Grafiği</div>
+        <div class="smallmuted" id="cmSub"></div>
+      </div>
+      <button id="cmClose" class="iconbtn">✕</button>
+    </div>
+
+    <div class="modalBody">
+      <canvas id="bigChart" width="900" height="360" class="chartCanvas"></canvas>
+      <div id="cmTable" class="table"></div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
