@@ -3,188 +3,115 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#3f51b5" />
+  <meta name="theme-color" content="#4f5bd5" />
   <title>FiyatTakip</title>
 
-  <!-- Manifest -->
   <link rel="manifest" href="manifest.json" />
-
-  <!-- iOS basit ikon -->
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
   <style>
     :root{
-      --primary:#3f51b5;
-      --bg:#f3f5fb;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --shadow:0 10px 25px rgba(0,0,0,.08);
-      --radius:18px;
-      --max:720px;
+      --p:#4f5bd5; --bg:#f5f6fa; --card:#fff; --muted:#6b7280;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
-    body{ margin:0; background:var(--bg); color:#111827; }
-    header{
-      background: #ffffff;
-      box-shadow: 0 2px 16px rgba(0,0,0,.06);
-      position: sticky; top:0; z-index:10;
-    }
-    .topbar{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:14px 16px;
-      display:flex; align-items:center; gap:12px;
-    }
-    .pill{
-      background:#eef2ff;
-      color:#1f2a7a;
-      padding:6px 12px;
-      border-radius:999px;
-      font-weight:700;
-      letter-spacing:.2px;
-    }
-    .menuBtn{
-      margin-left:auto;
-      border:none;
-      background:#f3f4f6;
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:18px;
-      cursor:pointer;
-    }
-    main{ max-width:var(--max); margin:0 auto; padding:16px; }
-    h1{ margin:12px 0 6px; font-size:32px; }
-    .sub{ margin:0 0 14px; color:var(--muted); }
-
-    .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:14px;
-      margin:14px 0;
-    }
-    .row{ display:flex; gap:10px; flex-wrap:wrap; }
-    input, select, button, textarea{
-      font:inherit;
-      border-radius:14px;
-      border:1px solid #e5e7eb;
-      padding:12px 12px;
-      outline:none;
-      background:#fff;
-    }
-    input:focus, textarea:focus, select:focus{
-      border-color:#c7d2fe;
-      box-shadow:0 0 0 4px rgba(99,102,241,.12);
-    }
-    .q{ flex:1 1 240px; }
-    .btn{
-      background:var(--primary);
-      color:#fff;
-      border:none;
-      padding:12px 16px;
-      border-radius:16px;
-      cursor:pointer;
-      font-weight:700;
-    }
-    .btn:active{ transform: translateY(1px); }
-    .btnGhost{
-      background:#eef2ff;
-      color:#1f2a7a;
-      border:1px solid #dbeafe;
-      border-radius:16px;
-      cursor:pointer;
-      font-weight:700;
-    }
-    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    @media (max-width:640px){ .grid2{ grid-template-columns:1fr; } }
-
-    .siteList{ display:flex; gap:10px; flex-wrap:wrap; }
-    .chip{
-      padding:8px 10px;
-      border-radius:999px;
-      background:#f3f4f6;
-      cursor:pointer;
-      user-select:none;
-      border:1px solid #e5e7eb;
-      font-weight:600;
-    }
-    .chip.active{
-      background:#eef2ff;
-      border-color:#c7d2fe;
-      color:#1f2a7a;
-    }
-
-    .muted{ color:var(--muted); font-size:13px; }
-    .hr{ height:1px; background:#eef2f7; margin:12px 0; }
-
-    .resultItem{
-      border:1px solid #eef2f7;
-      border-radius:16px;
-      padding:12px;
-      display:flex;
-      align-items:flex-start;
-      gap:10px;
-      justify-content:space-between;
-    }
-    .resultLeft{ min-width:0; }
-    .title{ font-weight:800; margin:0 0 6px; }
-    .small{ margin:0; color:var(--muted); font-size:13px; }
-    .actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
-    .danger{ background:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
-    .ok{ background:#dcfce7; color:#166534; border:1px solid #bbf7d0; }
-
-    /* simple drawer */
-    .drawer{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.35);
-      display:none;
-      z-index:50;
-    }
-    .drawer.open{ display:block; }
-    .panel{
-      position:absolute; right:0; top:0; height:100%;
-      width:min(360px, 92vw);
-      background:#fff;
-      padding:14px;
-      box-shadow: -10px 0 25px rgba(0,0,0,.15);
-    }
-    .panel h3{ margin:4px 0 10px; }
-    .panel .btn{ width:100%; }
-    .panel .btnGhost{ width:100%; margin-top:8px; }
+    body{margin:0;background:var(--bg);color:#111827}
+    header{position:sticky;top:0;background:#fff;box-shadow:0 2px 18px rgba(0,0,0,.08);z-index:10}
+    .bar{max-width:920px;margin:0 auto;padding:12px 14px;display:flex;align-items:center;gap:10px}
+    .pill{background:#eef2ff;color:#1f2a7a;padding:6px 12px;border-radius:999px;font-weight:900}
+    .spacer{flex:1}
+    .btnIcon{width:42px;height:42px;border-radius:14px;border:1px solid #e5e7eb;background:#f9fafb;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .btnIcon.primary{background:#eef2ff;border-color:#c7d2fe}
+    .btnIcon svg{width:20px;height:20px}
+    main{max-width:920px;margin:0 auto;padding:14px}
+    h1{margin:10px 0 6px;font-size:28px}
+    .sub{margin:0 0 12px;color:var(--muted)}
+    .card{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 10px 25px rgba(0,0,0,.08);margin:14px 0}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    input,select,button{font:inherit;border-radius:14px;border:1px solid #e5e7eb;padding:12px;background:#fff;outline:none}
+    input:focus,select:focus{border-color:#c7d2fe;box-shadow:0 0 0 4px rgba(99,102,241,.12)}
+    .q{flex:1 1 280px}
+    .btn{background:var(--p);color:#fff;border:none;font-weight:900;cursor:pointer;padding:12px 16px;border-radius:16px}
+    .btnGhost{background:#eef2ff;color:#1f2a7a;border:1px solid #dbeafe;font-weight:900;cursor:pointer;border-radius:16px}
+    .danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+    .ok{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+    .muted{color:var(--muted);font-size:13px}
+    .hr{height:1px;background:#eef2f7;margin:12px 0}
+    .chip{padding:8px 10px;border-radius:999px;background:#f3f4f6;border:1px solid #e5e7eb;font-weight:900;font-size:13px;cursor:pointer;user-select:none}
+    .chip.active{background:#eef2ff;border-color:#c7d2fe;color:#1f2a7a}
+    .item{border:1px solid #eef2f7;border-radius:16px;padding:12px;display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+    .left{min-width:0}
+    .title{margin:0 0 6px;font-weight:1000}
+    .small{margin:0;color:var(--muted);font-size:13px;word-break:break-word}
+    .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    /* Auth overlay */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:100;align-items:center;justify-content:center;padding:14px}
+    .overlay.open{display:flex}
+    .auth{width:min(440px,96vw);background:#fff;border-radius:22px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    .tabs{display:flex;gap:8px;margin:10px 0}
+    .tab{flex:1;border-radius:14px;border:1px solid #e5e7eb;background:#f9fafb;padding:10px 12px;font-weight:900;cursor:pointer}
+    .tab.active{background:#eef2ff;border-color:#c7d2fe;color:#1f2a7a}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:720px){.grid2{grid-template-columns:1fr}}
+    /* AI sheet */
+    .sheetBg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:80}
+    .sheetBg.open{display:block}
+    .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:14px;max-height:78vh;overflow:auto;box-shadow:0 -18px 45px rgba(0,0,0,.20)}
+    .sheetHead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .note{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;padding:10px 12px;border-radius:14px;font-size:13px}
   </style>
 </head>
+
 <body>
 <header>
-  <div class="topbar">
+  <div class="bar">
     <span class="pill">fiyattakip</span>
-    <button class="menuBtn" id="menuBtn">☰</button>
+    <span class="spacer"></span>
+
+    <button class="btnIcon primary" id="aiBtn" title="AI Arama">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v2"/><path d="M8 4h8"/>
+        <rect x="5" y="7" width="14" height="13" rx="3"/>
+        <path d="M9 12h.01M15 12h.01"/><path d="M8 16h8"/>
+      </svg>
+    </button>
+
+    <button class="btnIcon" id="logoutBtn" title="Çıkış">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>
+      </svg>
+    </button>
   </div>
 </header>
 
 <main>
   <h1>Fiyat Karşılaştır</h1>
-  <p class="sub">Ürün adını yaz, seçtiğin sitelerde arama aç. Favoriye ekle, manuel fiyat düşüş uyarısı kur.</p>
+  <p class="sub" id="banner">Giriş durumu kontrol ediliyor…</p>
 
   <!-- SEARCH -->
   <div class="card">
-    <div class="siteList" id="siteList"></div>
+    <div class="row" id="siteList"></div>
 
     <div class="row" style="margin-top:12px">
-      <input class="q" id="q" placeholder="Ürün adını yazın..." />
+      <input class="q" id="q" placeholder="Ürün adını yaz..." />
       <button class="btn" id="searchBtn">Ara</button>
+      <button class="btnGhost ok" id="openCheapestAll">En Ucuz Aç</button>
+      <button class="btnGhost" id="addFavBtn">Favoriye Ekle</button>
     </div>
+
     <p class="muted" style="margin-top:10px">
-      Not: Trendyol/Hepsiburada/N11/Amazon TR fiyatlarını tarayıcıdan otomatik çekmek (CORS + bot/captcha) yüzünden direkt mümkün olmuyor.
-      Bu sürüm **arama açar + favori + manuel fiyat takibi/bildirim** yapar.
+      Not: “En ucuz ürün linkini otomatik bulma” işi backend gerektirir. Burada seçili sitede “fiyata göre sırala” parametresi olanlarda açar.
     </p>
   </div>
 
   <!-- RESULTS -->
   <div class="card">
-    <div class="row" style="align-items:center; justify-content:space-between">
+    <div class="row" style="justify-content:space-between">
       <div>
-        <div style="font-weight:900">Arama sonuçları (site bazlı)</div>
-        <div class="muted">Her satır seçili sitede arama açar.</div>
+        <div style="font-weight:1000">Arama</div>
+        <div class="muted">Seçili sitelerde arama açar.</div>
       </div>
       <button class="btnGhost" id="clearResultsBtn">Temizle</button>
     </div>
@@ -194,12 +121,12 @@
 
   <!-- FAVORITES -->
   <div class="card">
-    <div class="row" style="align-items:center; justify-content:space-between">
+    <div class="row" style="justify-content:space-between">
       <div>
-        <div style="font-weight:900">❤️ Favoriler</div>
-        <div class="muted">Kaydettiğin ürünler burada.</div>
+        <div style="font-weight:1000">❤️ Favoriler (kullanıcıya özel)</div>
+        <div class="muted">Linkler görünmez; butonla aç / copy ile kopyala.</div>
       </div>
-      <button class="btnGhost danger" id="clearFavBtn">Favorileri Sil</button>
+      <button class="btnGhost danger" id="clearFavBtn">Hepsini Sil</button>
     </div>
     <div class="hr"></div>
     <div id="favorites"></div>
@@ -207,22 +134,23 @@
 
   <!-- ALERTS -->
   <div class="card">
-    <div style="font-weight:900">🔔 Bildirimler (Manuel fiyat düşüş uyarısı)</div>
+    <div style="font-weight:1000">🔔 İndirim Uyarıları (kullanıcıya özel)</div>
     <p class="muted">
-      Ürün linkini yapıştır, “mevcut fiyat” ve “hedef fiyat” gir. Uygulama açıldığında kontrol eder ve hedefin altındaysa bildirim atar.
+      Şimdilik fiyatı sen güncellersin → geçmiş oluşur. Kural: <b>%5 altı sayma</b>, <b>%5+ olursa bildir</b>.
+      Ayrıca <b>6 ayın en düşüğüyse</b> “6 ayın en düşüğü” diye yazar.
     </p>
 
     <div class="grid2">
-      <input id="alertTitle" placeholder="Ürün adı (örn: Xiaomi Pad 8)" />
-      <input id="alertUrl" placeholder="Ürün linki (Trendyol / HB / N11 / Amazon TR)" />
-      <input id="alertCurrent" inputmode="decimal" placeholder="Mevcut fiyat (örn: 12999)" />
-      <input id="alertTarget" inputmode="decimal" placeholder="Hedef fiyat (örn: 11999)" />
+      <input id="alertTitle" placeholder="Ürün adı" />
+      <input id="alertUrl" placeholder="Takip linki" />
+      <input id="alertCurrent" inputmode="decimal" placeholder="Şu anki fiyat (örn: 12999)" />
+      <input id="alertMinPct" inputmode="decimal" placeholder="Minimum indirim % (örn: 5)" />
     </div>
 
     <div class="row" style="margin-top:10px">
       <button class="btn" id="addAlertBtn">Uyarı Ekle</button>
-      <button class="btnGhost" id="checkAlertsBtn">Şimdi Kontrol Et</button>
-      <button class="btnGhost" id="enableNotifBtn">Bildirim İzni Ver</button>
+      <button class="btnGhost" id="notifBtn">Bildirim İzni</button>
+      <button class="btnGhost" id="checkBtn">Kontrol</button>
     </div>
 
     <div class="hr"></div>
@@ -230,462 +158,95 @@
   </div>
 </main>
 
-<!-- Drawer -->
-<div class="drawer" id="drawer">
-  <div class="panel">
-    <h3>Ayarlar</h3>
-    <p class="muted">PWA hazır. Buradan hızlı işlemler.</p>
-    <button class="btn" id="installBtn">Uygulamayı Yükle (Install)</button>
-    <button class="btnGhost" id="exportBtn">Veriyi Dışa Aktar (JSON)</button>
-    <button class="btnGhost" id="importBtn">Veri İçe Aktar (JSON)</button>
-    <input type="file" id="importFile" accept="application/json" style="display:none" />
+<!-- AI SHEET -->
+<div class="sheetBg" id="aiSheet">
+  <div class="sheet">
+    <div class="sheetHead">
+      <div style="font-weight:1000;font-size:18px">🤖 AI Arama</div>
+      <button class="btnIcon" id="aiClose" title="Kapat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
     <div class="hr"></div>
-    <button class="btnGhost danger" id="wipeBtn">Tüm Veriyi Sıfırla</button>
+
+    <div class="grid2">
+      <select id="aiProvider">
+        <option value="gemini">Gemini</option>
+        <option value="openai">OpenAI (backend önerilir)</option>
+      </select>
+      <input id="aiKey" placeholder="AI API Key (Gemini önerilir)" />
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btnGhost" id="saveAiKey">Key Kaydet</button>
+      <button class="btnGhost" id="fillExample">Örnek Doldur</button>
+    </div>
+
     <div class="hr"></div>
-    <button class="btnGhost" id="closeDrawerBtn">Kapat</button>
+    <input id="aiPrompt" placeholder="AI’ye sor: (örn: Xiaomi Pad 7 256GB tablet en ucuz?)" />
+    <div class="row" style="margin-top:10px">
+      <button class="btnGhost" id="aiFill">AI ile Aramayı Doldur</button>
+      <button class="btn" id="aiSearch">AI ile Ara</button>
+    </div>
+
+    <p class="muted" id="aiStatus" style="margin-top:10px"></p>
+    <div class="note" style="margin-top:10px">
+      Not: OpenAI key’i tarayıcıda kullanmak riskli. Şimdilik Gemini ile çalıştır.
+    </div>
   </div>
 </div>
 
-<script>
-/* ---------------------------
-   STORAGE HELPERS
-----------------------------*/
-const LS = {
-  get(key, fallback){
-    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
-    catch { return fallback; }
-  },
-  set(key, val){
-    localStorage.setItem(key, JSON.stringify(val));
-  }
-};
+<!-- AUTH -->
+<div class="overlay" id="authOverlay">
+  <div class="auth">
+    <div style="font-weight:1000;font-size:18px" id="authTitle">Giriş</div>
+    <div class="tabs">
+      <button class="tab active" id="tabLogin">Giriş</button>
+      <button class="tab" id="tabReg">Kayıt</button>
+      <button class="tab" id="tabVer">Doğrula</button>
+    </div>
 
-const KEY = {
-  sites: "ft_sites",
-  favs:  "ft_favorites",
-  alerts:"ft_alerts"
-};
-
-const DEFAULT_SITES = [
-  { id:"trendyol", name:"Trendyol",  url:(q)=>`https://www.trendyol.com/sr?q=${encodeURIComponent(q)}` },
-  { id:"hb",      name:"Hepsiburada",url:(q)=>`https://www.hepsiburada.com/ara?q=${encodeURIComponent(q)}` },
-  { id:"n11",     name:"N11",        url:(q)=>`https://www.n11.com/arama?q=${encodeURIComponent(q)}` },
-  { id:"amazon",  name:"Amazon TR",  url:(q)=>`https://www.amazon.com.tr/s?k=${encodeURIComponent(q)}` }
-];
-
-/* ---------------------------
-   UI ELEMENTS
-----------------------------*/
-const el = (id)=>document.getElementById(id);
-const siteListEl = el("siteList");
-const resultsEl  = el("results");
-const favEl      = el("favorites");
-const alertsEl   = el("alerts");
-
-let selectedSites = LS.get(KEY.sites, DEFAULT_SITES.map(s=>s.id));
-let favorites = LS.get(KEY.favs, []);
-let alerts = LS.get(KEY.alerts, []);
-
-/* ---------------------------
-   SITES UI
-----------------------------*/
-function renderSites(){
-  siteListEl.innerHTML = "";
-  DEFAULT_SITES.forEach(s=>{
-    const b = document.createElement("div");
-    b.className = "chip" + (selectedSites.includes(s.id) ? " active" : "");
-    b.textContent = s.name;
-    b.onclick = ()=>{
-      if(selectedSites.includes(s.id)){
-        selectedSites = selectedSites.filter(x=>x!==s.id);
-      } else {
-        selectedSites.push(s.id);
-      }
-      if(selectedSites.length === 0){
-        selectedSites = [s.id];
-      }
-      LS.set(KEY.sites, selectedSites);
-      renderSites();
-    };
-    siteListEl.appendChild(b);
-  });
-}
-
-/* ---------------------------
-   SEARCH / RESULTS
-----------------------------*/
-function makeResultItems(query){
-  const sites = DEFAULT_SITES.filter(s=>selectedSites.includes(s.id));
-  return sites.map(s=>{
-    const openUrl = s.url(query);
-    return {
-      id: crypto.randomUUID(),
-      query,
-      siteId: s.id,
-      siteName: s.name,
-      url: openUrl,
-      createdAt: Date.now()
-    };
-  });
-}
-
-function renderResults(items){
-  resultsEl.innerHTML = "";
-  if(!items || items.length===0){
-    resultsEl.innerHTML = `<p class="muted">Henüz arama yapılmadı.</p>`;
-    return;
-  }
-  items.forEach(item=>{
-    const row = document.createElement("div");
-    row.className = "resultItem";
-    row.innerHTML = `
-      <div class="resultLeft">
-        <p class="title">${item.siteName}</p>
-        <p class="small">Arama: <b>${escapeHtml(item.query)}</b></p>
+    <div id="paneLogin">
+      <div class="grid2">
+        <input id="loginEmail" placeholder="Email" autocomplete="email" />
+        <input id="loginPass" placeholder="Şifre" type="password" autocomplete="current-password" />
       </div>
-      <div class="actions">
-        <button class="btnGhost ok" data-open>Siteyi Aç</button>
-        <button class="btnGhost" data-fav>Favoriye Ekle</button>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="loginGo">Giriş Yap</button>
+        <button class="btnGhost" id="resetGo">Şifre Sıfırla</button>
       </div>
-    `;
-    row.querySelector("[data-open]").onclick = ()=> window.open(item.url, "_blank");
-    row.querySelector("[data-fav]").onclick = ()=>{
-      addFavorite({
-        title: item.query,
-        site: item.siteName,
-        url: item.url
-      });
-    };
-    resultsEl.appendChild(row);
-  });
-}
+      <p class="muted" style="margin-top:10px">Favori/Uyarı için giriş ve email doğrulaması şart.</p>
+    </div>
 
-let currentResults = [];
-
-el("searchBtn").onclick = ()=>{
-  const q = el("q").value.trim();
-  if(!q){ toast("Ürün adı yaz."); return; }
-  currentResults = makeResultItems(q);
-  renderResults(currentResults);
-};
-
-el("clearResultsBtn").onclick = ()=>{
-  currentResults = [];
-  renderResults(currentResults);
-};
-
-/* Enter ile ara */
-el("q").addEventListener("keydown", (e)=>{
-  if(e.key === "Enter") el("searchBtn").click();
-});
-
-/* ---------------------------
-   FAVORITES
-----------------------------*/
-function addFavorite({title, site, url}){
-  const exists = favorites.some(f=>f.url===url);
-  if(exists){ toast("Zaten favorilerde."); return; }
-  favorites.unshift({
-    id: crypto.randomUUID(),
-    title, site, url,
-    createdAt: Date.now()
-  });
-  LS.set(KEY.favs, favorites);
-  renderFavorites();
-  toast("Favoriye eklendi ✅");
-}
-
-function removeFavorite(id){
-  favorites = favorites.filter(f=>f.id!==id);
-  LS.set(KEY.favs, favorites);
-  renderFavorites();
-}
-
-function renderFavorites(){
-  favEl.innerHTML = "";
-  if(favorites.length===0){
-    favEl.innerHTML = `<p class="muted">Favori yok.</p>`;
-    return;
-  }
-  favorites.forEach(f=>{
-    const row = document.createElement("div");
-    row.className = "resultItem";
-    row.innerHTML = `
-      <div class="resultLeft">
-        <p class="title">${escapeHtml(f.title)}</p>
-        <p class="small">${escapeHtml(f.site)}</p>
-        <p class="small" style="word-break:break-all">${escapeHtml(f.url)}</p>
+    <div id="paneReg" style="display:none">
+      <div class="grid2">
+        <input id="regEmail" placeholder="Email" autocomplete="email" />
+        <input id="regPass" placeholder="Şifre (min 6)" type="password" autocomplete="new-password" />
       </div>
-      <div class="actions">
-        <button class="btnGhost ok" data-open>Aç</button>
-        <button class="btnGhost" data-alert>Uyarı Kur</button>
-        <button class="btnGhost danger" data-del>Sil</button>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="regGo">Kayıt Ol</button>
       </div>
-    `;
-    row.querySelector("[data-open]").onclick = ()=> window.open(f.url, "_blank");
-    row.querySelector("[data-alert]").onclick = ()=>{
-      el("alertTitle").value = f.title;
-      el("alertUrl").value = f.url;
-      toast("Link uyarı formuna geldi. Fiyatları girip 'Uyarı Ekle' de.");
-      window.scrollTo({top: document.body.scrollHeight, behavior:"smooth"});
-    };
-    row.querySelector("[data-del]").onclick = ()=> removeFavorite(f.id);
-    favEl.appendChild(row);
-  });
-}
+      <p class="muted" style="margin-top:10px">Kayıttan sonra doğrulama maili gider.</p>
+    </div>
 
-el("clearFavBtn").onclick = ()=>{
-  if(!confirm("Tüm favoriler silinsin mi?")) return;
-  favorites = [];
-  LS.set(KEY.favs, favorites);
-  renderFavorites();
-};
-
-/* ---------------------------
-   ALERTS (MANUAL)
-----------------------------*/
-function parsePrice(x){
-  if(x==null) return null;
-  const s = String(x).replace(",", ".").replace(/[^\d.]/g,"");
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
-}
-
-function addAlert(){
-  const title = el("alertTitle").value.trim();
-  const url   = el("alertUrl").value.trim();
-  const cur   = parsePrice(el("alertCurrent").value.trim());
-  const tgt   = parsePrice(el("alertTarget").value.trim());
-
-  if(!title || !url || cur==null || tgt==null){
-    toast("Ürün adı + link + fiyatlar dolu olmalı.");
-    return;
-  }
-
-  alerts.unshift({
-    id: crypto.randomUUID(),
-    title, url,
-    current: cur,
-    target: tgt,
-    createdAt: Date.now(),
-    lastCheckedAt: 0,
-    lastNotifiedAt: 0
-  });
-  LS.set(KEY.alerts, alerts);
-  renderAlerts();
-  toast("Uyarı eklendi 🔔");
-}
-
-function updateAlertPrice(id, newCurrent){
-  alerts = alerts.map(a=> a.id===id ? {...a, current:newCurrent} : a);
-  LS.set(KEY.alerts, alerts);
-  renderAlerts();
-}
-
-function removeAlert(id){
-  alerts = alerts.filter(a=>a.id!==id);
-  LS.set(KEY.alerts, alerts);
-  renderAlerts();
-}
-
-async function ensureNotificationPermission(){
-  if(!("Notification" in window)) { toast("Bu cihaz bildirim desteklemiyor."); return false; }
-  if(Notification.permission === "granted") return true;
-  const p = await Notification.requestPermission();
-  return p === "granted";
-}
-
-async function notify(title, body){
-  const ok = await ensureNotificationPermission();
-  if(!ok) { toast("Bildirim izni yok."); return; }
-  try{
-    new Notification(title, { body });
-  }catch{
-    // bazı Android WebView'larda SW üzerinden olur, burada en azından toast:
-    toast(body);
-  }
-}
-
-function checkAlerts(manual=false){
-  const now = Date.now();
-  alerts = alerts.map(a=> ({...a, lastCheckedAt: now}));
-  LS.set(KEY.alerts, alerts);
-
-  // Hedefin altına düştüyse bildir
-  alerts.forEach(a=>{
-    if(a.current <= a.target){
-      // spam olmasın: 1 saatte 1 kez
-      if(now - (a.lastNotifiedAt||0) > 60*60*1000 || manual){
-        a.lastNotifiedAt = now;
-        notify("Fiyat düştü ✅", `${a.title} hedefin altında: ${a.current} ≤ ${a.target}`);
-      }
-    }
-  });
-
-  LS.set(KEY.alerts, alerts);
-  renderAlerts();
-  toast("Kontrol yapıldı.");
-}
-
-function renderAlerts(){
-  alertsEl.innerHTML = "";
-  if(alerts.length===0){
-    alertsEl.innerHTML = `<p class="muted">Uyarı yok.</p>`;
-    return;
-  }
-
-  alerts.forEach(a=>{
-    const row = document.createElement("div");
-    row.className = "resultItem";
-    const status = (a.current <= a.target)
-      ? `<span class="chip active">HEDEF ALTINDA ✅</span>`
-      : `<span class="chip">Bekliyor</span>`;
-
-    row.innerHTML = `
-      <div class="resultLeft">
-        <p class="title">${escapeHtml(a.title)} ${status}</p>
-        <p class="small" style="word-break:break-all">${escapeHtml(a.url)}</p>
-        <p class="small">Mevcut: <b>${a.current}</b> • Hedef: <b>${a.target}</b></p>
-        <p class="small muted">Son kontrol: ${a.lastCheckedAt ? new Date(a.lastCheckedAt).toLocaleString() : "-"}</p>
+    <div id="paneVer" style="display:none">
+      <div class="note">
+        Email doğrulama olmadan uygulama açılmaz. Maili açıp doğruladıktan sonra “Kontrol Et” de.
       </div>
-      <div class="actions">
-        <button class="btnGhost ok" data-open>Aç</button>
-        <button class="btnGhost" data-update>Fiyat Güncelle</button>
-        <button class="btnGhost danger" data-del>Sil</button>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="resendGo">Maili Tekrar Gönder</button>
+        <button class="btnGhost" id="checkVerGo">Kontrol Et</button>
       </div>
-    `;
-    row.querySelector("[data-open]").onclick = ()=> window.open(a.url, "_blank");
-    row.querySelector("[data-update]").onclick = ()=>{
-      const v = prompt("Yeni mevcut fiyatı yaz (sayı):", String(a.current));
-      if(v==null) return;
-      const n = parsePrice(v);
-      if(n==null) { toast("Geçersiz fiyat."); return; }
-      updateAlertPrice(a.id, n);
-      toast("Fiyat güncellendi.");
-    };
-    row.querySelector("[data-del]").onclick = ()=> removeAlert(a.id);
-    alertsEl.appendChild(row);
-  });
-}
+    </div>
 
-el("addAlertBtn").onclick = addAlert;
-el("checkAlertsBtn").onclick = ()=>checkAlerts(true);
-el("enableNotifBtn").onclick = ensureNotificationPermission;
+    <div class="hr"></div>
+    <p class="muted" id="authMsg"></p>
+  </div>
+</div>
 
-/* Uygulama açıldığında bir kez kontrol et */
-window.addEventListener("load", ()=>{
-  renderSites();
-  renderResults(currentResults);
-  renderFavorites();
-  renderAlerts();
-  // açılışta kontrol:
-  setTimeout(()=>checkAlerts(false), 800);
-});
-
-/* ---------------------------
-   INSTALL PROMPT
-----------------------------*/
-let deferredPrompt = null;
-window.addEventListener("beforeinstallprompt", (e)=>{
-  e.preventDefault();
-  deferredPrompt = e;
-});
-el("installBtn").onclick = async ()=>{
-  if(!deferredPrompt){ toast("Install tetiklenmedi. Chrome menü > Ana ekrana ekle de olur."); return; }
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-};
-
-/* ---------------------------
-   DRAWER + EXPORT/IMPORT
-----------------------------*/
-const drawer = el("drawer");
-el("menuBtn").onclick = ()=> drawer.classList.add("open");
-el("closeDrawerBtn").onclick = ()=> drawer.classList.remove("open");
-drawer.addEventListener("click", (e)=>{ if(e.target === drawer) drawer.classList.remove("open"); });
-
-el("wipeBtn").onclick = ()=>{
-  if(!confirm("Tüm veriler (favori/uyarılar) sıfırlansın mı?")) return;
-  favorites = []; alerts = [];
-  LS.set(KEY.favs, favorites);
-  LS.set(KEY.alerts, alerts);
-  renderFavorites(); renderAlerts();
-  toast("Sıfırlandı.");
-};
-
-el("exportBtn").onclick = ()=>{
-  const data = {
-    sites: selectedSites,
-    favorites,
-    alerts,
-    exportedAt: new Date().toISOString()
-  };
-  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "fiyattakip-data.json";
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-el("importBtn").onclick = ()=> el("importFile").click();
-el("importFile").addEventListener("change", async (e)=>{
-  const file = e.target.files?.[0];
-  if(!file) return;
-  const text = await file.text();
-  try{
-    const data = JSON.parse(text);
-    if(Array.isArray(data.sites)) selectedSites = data.sites;
-    if(Array.isArray(data.favorites)) favorites = data.favorites;
-    if(Array.isArray(data.alerts)) alerts = data.alerts;
-    LS.set(KEY.sites, selectedSites);
-    LS.set(KEY.favs, favorites);
-    LS.set(KEY.alerts, alerts);
-    renderSites(); renderFavorites(); renderAlerts();
-    toast("İçe aktarıldı ✅");
-  }catch{
-    toast("JSON okunamadı.");
-  }finally{
-    e.target.value = "";
-  }
-});
-
-/* ---------------------------
-   SERVICE WORKER
-----------------------------*/
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js").catch(()=>{});
-}
-
-/* ---------------------------
-   UTILS
-----------------------------*/
-function toast(msg){
-  const d = document.createElement("div");
-  d.textContent = msg;
-  d.style.position="fixed";
-  d.style.left="50%";
-  d.style.bottom="22px";
-  d.style.transform="translateX(-50%)";
-  d.style.background="#111827";
-  d.style.color="#fff";
-  d.style.padding="10px 14px";
-  d.style.borderRadius="14px";
-  d.style.boxShadow="0 10px 25px rgba(0,0,0,.25)";
-  d.style.zIndex="9999";
-  d.style.maxWidth="92vw";
-  d.style.fontWeight="700";
-  document.body.appendChild(d);
-  setTimeout(()=>{ d.style.opacity="0"; d.style.transition="opacity .25s"; }, 1600);
-  setTimeout(()=> d.remove(), 2000);
-}
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[m]));
-}
-</script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
