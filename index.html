@@ -1,147 +1,364 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Fiyat Takip</title>
-  <link rel="manifest" 
-    href="manifest.json">
 
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#3f51b5" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d6efd">
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f5f6fa;
+    :root{
+      --bg:#f5f7fb; --card:#fff; --text:#111827; --muted:#6b7280;
+      --blue:#0d6efd; --green:#198754; --border:rgba(0,0,0,.10);
+      --shadow:0 12px 30px rgba(0,0,0,.10); --r:18px;
     }
-
-    .phone {
-      max-width: 390px;
-      margin: 20px auto;
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      padding: 16px;
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    .phone{max-width:420px;margin:22px auto;background:var(--card);border-radius:24px;box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--border)}
+    .top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);background:#fff}
+    .badge{background:rgba(13,110,253,.12);color:var(--blue);font-weight:800;font-size:12px;padding:5px 10px;border-radius:999px}
+    .menuBtn{border:1px solid var(--border);background:#fff;border-radius:14px;padding:10px 12px;font-weight:900;cursor:pointer}
+    .content{padding:16px}
+    h1{margin:8px 0 6px;font-size:22px}
+    .title{margin:6px 0 6px;font-size:28px;font-weight:900;color:#2d4ee0}
+    .subtitle{margin:0 0 14px;color:var(--muted);font-size:14px}
+    .row{display:flex;gap:10px}
+    input{
+      width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);
+      font-size:15px;outline:none;
     }
-
-    .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
+    select{
+      width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);
+      background:#fff;font-size:14px;outline:none;
     }
-
-    .logo {
-      background: #e7ebff;
-      color: #3f51b5;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 14px;
+    .btn{
+      width:100%;padding:14px;border-radius:12px;border:none;cursor:pointer;
+      font-size:15px;font-weight:800;
     }
-
-    h1 {
-      font-size: 22px;
-      margin: 12px 0 4px;
-      color: #222;
+    .btnPrimary{background:var(--blue);color:#fff}
+    .btnGreen{background:var(--green);color:#fff}
+    .btnGhost{background:rgba(0,0,0,.06);color:var(--text)}
+    .hint{margin-top:10px;color:var(--muted);font-size:12px}
+    .card{
+      margin-top:14px;padding:14px;border-radius:14px;
+      background:linear-gradient(180deg, rgba(13,110,253,.10), rgba(13,110,253,.06));
+      border:1px solid rgba(13,110,253,.18)
     }
-
-    .subtitle {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 14px;
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+    .tile{
+      border:1px solid var(--border);border-radius:16px;background:#fff;
+      padding:14px;box-shadow:0 10px 18px rgba(0,0,0,.05);
+      cursor:pointer;
     }
-
-    .search-box input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      font-size: 14px;
-      margin-bottom: 10px;
+    .tile .t{font-weight:900}
+    .tile .d{font-size:12px;color:var(--muted);margin-top:6px}
+    .list{margin-top:10px;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .item{display:flex;justify-content:space-between;gap:10px;padding:12px;background:#fff;border-bottom:1px solid rgba(0,0,0,.06)}
+    .item:last-child{border-bottom:none}
+    .item .name{font-weight:900}
+    .item .meta{font-size:12px;color:var(--muted);margin-top:4px}
+    .chipRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .chip{font-size:12px;border:1px solid var(--border);padding:6px 10px;border-radius:999px;background:#fff;cursor:pointer}
+    .danger{background:#fff0f0;border-color:rgba(220,53,69,.35);color:#b02a37}
+    .linkbtn{background:rgba(13,110,253,.10);border:1px solid rgba(13,110,253,.25);color:#0b5ed7}
+    /* Toast */
+    .toast{
+      position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+      background:#111827;color:#fff;padding:12px 14px;border-radius:14px;
+      box-shadow:0 14px 28px rgba(0,0,0,.25);
+      opacity:0;pointer-events:none;transition:.22s;
+      width:min(420px, calc(100% - 24px));
+      font-size:14px;
     }
-
-    .search-btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      background: #3f51b5;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .card {
-      background: #eef1ff;
-      border-radius: 14px;
-      padding: 14px;
-      margin-top: 16px;
-      font-size: 14px;
-    }
-
-    .bottom {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-      gap: 10px;
-    }
-
-    .mini-card {
-      flex: 1;
-      background: #f7f7f7;
-      border-radius: 14px;
-      padding: 14px;
-      text-align: center;
-      font-size: 13px;
-    }
+    .toast.show{opacity:1}
+    /* Drawer */
+    .drawer{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;padding:14px}
+    .sheet{width:min(420px, 100%);background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:12px}
+    .sheet h3{margin:8px 6px 10px}
+    .sheet .a{display:block;text-decoration:none;color:var(--text);border:1px solid var(--border);border-radius:14px;padding:12px;margin:0 0 10px;font-weight:900}
+    .sheet .a small{display:block;color:var(--muted);font-weight:400;margin-top:2px}
   </style>
 </head>
 
 <body>
-
   <div class="phone">
     <div class="top">
-      <div class="logo">fiyattakip</div>
-      <div>☰</div>
-    </div>
-
-    <h1>Fiyat Karşılaştır</h1>
-    <div class="subtitle">Ürün adını yaz, en güncel fiyatları karşılaştır</div>
-
-    <div class="search-box">
-      <input type="text" placeholder="Ürün adını yazın..." />
-      <button class="search-btn">Ara</button>
-    </div>
-
-    <div class="card">
-      <strong>En iyi fiyatları bul</strong><br />
-      Binlerce mağazadan anlık fiyat karşılaştırması
-    </div>
-
-    <div class="bottom">
-      <div class="mini-card">
-        ❤️<br />
-        Favoriler<br />
-        Kayıtlı ürünler
+      <div>
+        <div class="badge">fiyattakip</div>
+        <div style="margin-top:6px;font-weight:900">Ana Sayfa</div>
       </div>
-      <div class="mini-card">
-        🔔<br />
-        Bildirimler<br />
-        Fiyat düşüş uyarıları
+      <button class="menuBtn" id="menuBtn">☰</button>
+    </div>
+
+    <!-- HOME -->
+    <div class="content" id="viewHome">
+      <div class="title">Fiyat Karşılaştır</div>
+      <p class="subtitle">Ürün adını yaz, sitelerde ara. İstersen favoriye ekle.</p>
+
+      <input id="searchInput" placeholder="Ürün adı yaz..." />
+
+      <div class="row" style="margin-top:10px">
+        <select id="siteSelect" title="Tek site seç">
+          <option value="all">Hepsinde Ara (4 site)</option>
+          <option value="trendyol">Trendyol</option>
+          <option value="hepsiburada">Hepsiburada</option>
+          <option value="n11">N11</option>
+          <option value="amazon">Amazon TR</option>
+        </select>
       </div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn btnPrimary" id="btnSearch">Ara</button>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn btnGreen" id="btnFav">⭐ Favoriye Ekle</button>
+      </div>
+
+      <div class="hint">Bildirimler bu sürümde uygulama açıkken gösterilir (toast).</div>
+
+      <div class="card">
+        <div style="font-weight:900;margin-bottom:4px">Nasıl çalışır?</div>
+        <div style="color:var(--muted);font-size:12px">
+          Arama butonu ilgili sitelerde arama sayfasını açar. Favoriler cihazında saklanır.
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="tile" id="goFavTile">
+          <div class="t">❤️ Favoriler</div>
+          <div class="d">Kaydettiğin ürünleri gör</div>
+        </div>
+        <div class="tile" id="goNotiTile">
+          <div class="t">🔔 Bildirimler</div>
+          <div class="d">Uygulama içi uyarılar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAVORITES -->
+    <div class="content" id="viewFav" style="display:none">
+      <h1>Favoriler</h1>
+      <p class="subtitle">Cihazında kayıtlı ürünler (localStorage).</p>
+
+      <div class="row">
+        <button class="btn btnGhost" id="btnBackHome">⬅ Ana Sayfa</button>
+      </div>
+
+      <div id="favEmpty" class="card" style="display:none">
+        Favorin yok. Ana sayfadan ürün yazıp ⭐ Favoriye Ekle.
+      </div>
+
+      <div class="list" id="favList"></div>
     </div>
   </div>
 
-  <!-- SERVICE WORKER KAYDI (ZORUNLU) -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js");
-    }
-  </script>
+  <!-- Drawer -->
+  <div class="drawer" id="drawer">
+    <div class="sheet">
+      <h3>Menü</h3>
+      <a href="#" class="a" id="menuHome">Ana Sayfa <small>Arama ekranı</small></a>
+      <a href="#" class="a" id="menuFav">Favoriler <small>Kayıtlı ürünler</small></a>
+      <a href="#" class="a" id="menuClose">Kapat</a>
+    </div>
+  </div>
 
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Service Worker (varsa)
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    }
+
+    // ===== Utils =====
+    const $ = (id) => document.getElementById(id);
+    const LS_KEY = "fiyattakip_favs_v1";
+
+    function toast(msg){
+      const t = $("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
+    }
+
+    function nowStr(){
+      const d = new Date();
+      return d.toLocaleString("tr-TR");
+    }
+
+    function getFavs(){
+      try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }
+      catch { return []; }
+    }
+
+    function setFavs(arr){
+      localStorage.setItem(LS_KEY, JSON.stringify(arr));
+    }
+
+    function normalize(s){ return (s||"").trim().toLowerCase(); }
+
+    // ===== Search URLs =====
+    function buildUrls(qEnc){
+      return {
+        trendyol: "https://www.trendyol.com/sr?q=" + qEnc,
+        hepsiburada: "https://www.hepsiburada.com/ara?q=" + qEnc,
+        n11: "https://www.n11.com/arama?q=" + qEnc,
+        amazon: "https://www.amazon.com.tr/s?k=" + qEnc
+      };
+    }
+
+    function getQuery(){
+      const raw = $("searchInput").value.trim();
+      if(!raw){ toast("Ürün adı yaz."); return null; }
+      return { raw, enc: encodeURIComponent(raw) };
+    }
+
+    function doSearch(){
+      const q = getQuery();
+      if(!q) return;
+
+      const urls = buildUrls(q.enc);
+      const mode = $("siteSelect").value;
+
+      if(mode === "all"){
+        // Not: bazı Android WebView çoklu pencereyi kısıtlayabilir.
+        window.open(urls.trendyol, "_blank");
+        window.open(urls.hepsiburada, "_blank");
+        window.open(urls.n11, "_blank");
+        window.open(urls.amazon, "_blank");
+        toast("4 sitede arama açıldı (demo).");
+      }else{
+        window.open(urls[mode], "_blank");
+        toast("Arama açıldı: " + mode);
+      }
+    }
+
+    // ===== Favorites =====
+    function addFav(){
+      const q = getQuery();
+      if(!q) return;
+
+      const favs = getFavs();
+      const key = normalize(q.raw);
+
+      if(favs.some(x => x.key === key)){
+        toast("Zaten favorilerde.");
+        return;
+      }
+
+      favs.unshift({
+        key,
+        name: q.raw,
+        addedAt: nowStr()
+      });
+      setFavs(favs);
+      toast("Favoriye eklendi ⭐");
+    }
+
+    function removeFav(key){
+      const favs = getFavs().filter(x => x.key !== key);
+      setFavs(favs);
+      renderFavs();
+      toast("Favoriden kaldırıldı.");
+    }
+
+    function openFavSearch(name){
+      $("searchInput").value = name;
+      $("siteSelect").value = "all";
+      showHome();
+      toast("Favori yüklendi. Ara’ya bas.");
+    }
+
+    function renderFavs(){
+      const favs = getFavs();
+      const list = $("favList");
+      list.innerHTML = "";
+
+      $("favEmpty").style.display = favs.length ? "none" : "block";
+
+      favs.forEach(f => {
+        const row = document.createElement("div");
+        row.className = "item";
+
+        const left = document.createElement("div");
+        left.innerHTML = `
+          <div class="name">${escapeHtml(f.name)}</div>
+          <div class="meta">Eklendi: ${escapeHtml(f.addedAt || "")}</div>
+        `;
+
+        const right = document.createElement("div");
+        right.style.textAlign = "right";
+
+        const chips = document.createElement("div");
+        chips.className = "chipRow";
+
+        const btnUse = document.createElement("button");
+        btnUse.className = "chip linkbtn";
+        btnUse.textContent = "Ara";
+        btnUse.onclick = () => openFavSearch(f.name);
+
+        const btnDel = document.createElement("button");
+        btnDel.className = "chip danger";
+        btnDel.textContent = "Sil";
+        btnDel.onclick = () => removeFav(f.key);
+
+        chips.appendChild(btnUse);
+        chips.appendChild(btnDel);
+
+        right.appendChild(chips);
+
+        row.appendChild(left);
+        row.appendChild(right);
+        list.appendChild(row);
+      });
+    }
+
+    function escapeHtml(s){
+      return (s ?? "").toString()
+        .replaceAll("&","&amp;").replaceAll("<","&lt;")
+        .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // ===== Views =====
+    function showHome(){
+      $("viewHome").style.display = "block";
+      $("viewFav").style.display = "none";
+    }
+    function showFav(){
+      $("viewHome").style.display = "none";
+      $("viewFav").style.display = "block";
+      renderFavs();
+    }
+
+    // ===== Drawer =====
+    const drawer = $("drawer");
+    $("menuBtn").onclick = () => drawer.style.display = "flex";
+    $("menuClose").onclick = (e) => { e.preventDefault(); drawer.style.display = "none"; };
+    drawer.addEventListener("click", (e)=>{ if(e.target===drawer) drawer.style.display="none"; });
+
+    $("menuHome").onclick = (e)=>{ e.preventDefault(); drawer.style.display="none"; showHome(); };
+    $("menuFav").onclick = (e)=>{ e.preventDefault(); drawer.style.display="none"; showFav(); };
+
+    // ===== Buttons =====
+    $("btnSearch").onclick = doSearch;
+    $("btnFav").onclick = addFav;
+    $("goFavTile").onclick = showFav;
+    $("btnBackHome").onclick = showHome;
+
+    $("goNotiTile").onclick = () => toast("Bildirimler: Bu sürümde uygulama açıkken toast gösterilir.");
+
+    // Enter ile ara
+    $("searchInput").addEventListener("keydown", (e)=>{ if(e.key==="Enter") doSearch(); });
+
+    // İlk açılış bildirimi
+    setTimeout(()=>toast("Hazır! Ürün yazıp Ara veya ⭐ Favoriye Ekle."), 500);
+  </script>
 </body>
 </html>
